@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobeys Store Manager Dashboard - Staffbase Widget</title>
+    <style>
+        /* Widget Container Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #f3f4f6;
+        }
+
+        .staffbase-widget-container {
+            max-width: 100%;
+            margin: 0 auto;
+            background-color: #f3f4f6;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        .widget-header {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .store-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+        }
+
+        .store-name h1 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin: 0 0 0.25rem 0;
+        }
+
+        .store-id {
+            font-size: 0.875rem;
+            color: rgba(255,255,255,0.85);
+            margin: 0;
+        }
+
+        .store-meta {
+            text-align: right;
+        }
+
+        .region {
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin: 0 0 0.25rem 0;
+        }
+
+        .date {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.85);
+            margin: 0;
+        }
+
+        /* Scenario Toggle */
+        .scenario-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .scenario-button {
+            flex: 1;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .scenario-button.active {
+            background-color: white;
+            color: #15803d;
+        }
+
+        .scenario-button.inactive {
+            background-color: #16a34a;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .scenario-button:hover {
+            opacity: 0.9;
+        }
+
+        /* Content Container */
+        .widget-content {
+            padding: 1rem;
+        }
+
+        /* Section Styles */
+        .widget-section {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .section-header:hover {
+            background-color: #f9fafb;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.125rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .section-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .badge-red {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .badge-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .chevron {
+            width: 1.25rem;
+            height: 1.25rem;
+            transition: transform 0.2s;
+        }
+
+        .chevron.expanded {
+            transform: rotate(180deg);
+        }
+
+        .section-content {
+            padding: 0 1rem 1rem 1rem;
+            display: none;
+        }
+
+        .section-content.expanded {
+            display: block;
+        }
+
+        .section-content.always-visible {
+            display: block;
+        }
+
+        /* KPI Cards */
+        .kpi-main {
+            padding: 0.75rem;
+            background-color: #f9fafb;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6b7280;
+            margin: 0 0 0.25rem 0;
+        }
+
+        .kpi-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #111827;
+            margin: 0;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-on-track { background-color: #d1fae5; color: #065f46; }
+        .status-behind { background-color: #fee2e2; color: #991b1b; }
+        .status-ahead { background-color: #dbeafe; color: #1e3a8a; }
+        .status-watch { background-color: #fef3c7; color: #92400e; }
+        .status-over { background-color: #fee2e2; color: #991b1b; }
+        .status-good { background-color: #d1fae5; color: #065f46; }
+        .status-concern { background-color: #fef3c7; color: #92400e; }
+        .status-critical { background-color: #fee2e2; color: #991b1b; }
+
+        .kpi-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .variance-positive { color: #16a34a; }
+        .variance-negative { color: #dc2626; }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .metric-card {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+        }
+
+        .metric-card-blue { background-color: #dbeafe; }
+        .metric-card-purple { background-color: #e9d5ff; }
+        .metric-card-yellow { background-color: #fef3c7; }
+        .metric-card-orange { background-color: #fed7aa; }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin: 0 0 0.25rem 0;
+        }
+
+        .metric-value {
+            font-size: 1.125rem;
+            font-weight: bold;
+            color: #111827;
+            margin: 0 0 0.25rem 0;
+        }
+
+        .metric-sub {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin: 0;
+        }
+
+        /* People & HR */
+        .info-card {
+            padding: 0.75rem;
+            background-color: #f9fafb;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .info-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .pulse-card {
+            padding: 0.75rem;
+            background-color: #e0e7ff;
+            border-radius: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .pulse-score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        .pulse-score-max {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .trend-icon {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .trend-up { color: #16a34a; }
+        .trend-down { color: #dc2626; }
+        .trend-stable { color: #6b7280; }
+
+        /* Positions & Alerts */
+        .list-section {
+            margin-bottom: 0.75rem;
+        }
+
+        .list-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .list-item {
+            padding: 0.5rem;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .list-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.25rem;
+        }
+
+        .list-item-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #111827;
+            margin: 0;
+        }
+
+        .list-item-subtitle {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .list-item-meta {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin: 0.25rem 0 0 0;
+        }
+
+        .priority-badge {
+            font-size: 0.75rem;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+        .priority-low { color: #6b7280; }
+        .priority-medium { color: #d97706; }
+        .priority-high { color: #ea580c; }
+        .priority-urgent, .priority-critical { color: #dc2626; }
+
+        .hr-alert-card {
+            padding: 0.5rem;
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            border-radius: 0.375rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .hr-alert-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #111827;
+            margin: 0 0 0.25rem 0;
+        }
+
+        .hr-alert-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        /* Tasks */
+        .task-card {
+            padding: 0.75rem;
+            border-left: 4px solid;
+            border-radius: 0.375rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .task-completed { 
+            background-color: #d1fae5; 
+            border-color: #10b981;
+            color: #065f46;
+        }
+
+        .task-in-progress { 
+            background-color: #dbeafe; 
+            border-color: #3b82f6;
+            color: #1e3a8a;
+        }
+
+        .task-not-started { 
+            background-color: #f3f4f6; 
+            border-color: #9ca3af;
+            color: #374151;
+        }
+
+        .task-overdue { 
+            background-color: #fee2e2; 
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.25rem;
+        }
+
+        .task-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin: 0;
+            flex: 1;
+        }
+
+        .task-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .task-time {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-size: 0.75rem;
+        }
+
+        .task-notes {
+            font-size: 0.75rem;
+            font-style: italic;
+            margin-top: 0.5rem;
+            opacity: 0.8;
+        }
+
+        /* Alerts */
+        .alert-card {
+            padding: 0.75rem;
+            border-left: 4px solid;
+            border-radius: 0.375rem;
+            margin-bottom: 0.75rem;
+            position: relative;
+        }
+
+        .alert-info { 
+            background-color: #dbeafe; 
+            border-color: #3b82f6;
+        }
+
+        .alert-warning { 
+            background-color: #fef3c7; 
+            border-color: #f59e0b;
+        }
+
+        .alert-critical { 
+            background-color: #fee2e2; 
+            border-color: #ef4444;
+        }
+
+        .alert-emergency { 
+            background-color: #fae8ff; 
+            border-color: #a855f7;
+        }
+
+        .alert-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.5rem;
+        }
+
+        .alert-badges {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .severity-badge {
+            font-size: 0.75rem;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+        }
+
+        .severity-critical { background-color: #dc2626; color: white; }
+        .severity-warning { background-color: #f59e0b; color: white; }
+        .severity-info { background-color: #3b82f6; color: white; }
+
+        .category-badge {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .new-indicator {
+            width: 0.5rem;
+            height: 0.5rem;
+            background-color: #ef4444;
+            border-radius: 9999px;
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .alert-title {
+            font-size: 0.875rem;
+            font-weight: bold;
+            color: #111827;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .alert-description {
+            font-size: 0.875rem;
+            color: #374151;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .alert-action {
+            padding: 0.5rem;
+            background-color: white;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #374151;
+            margin: 0 0 0.25rem 0;
+        }
+
+        .action-text {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .alert-timestamp {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin: 0;
+        }
+
+        .no-alerts {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #6b7280;
+        }
+
+        .check-icon {
+            width: 2rem;
+            height: 2rem;
+            color: #10b981;
+            margin: 0 auto 0.5rem;
+        }
+
+        /* Quick Actions */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .action-button {
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border: 1px solid #6ee7b7;
+            border-radius: 0.5rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .action-button:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+        }
+
+        .action-icon-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .action-icon {
+            width: 1rem;
+            height: 1rem;
+            color: #047857;
+        }
+
+        .action-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #111827;
+            margin: 0;
+        }
+
+        /* Footer */
+        .widget-footer {
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .widget-footer p {
+            margin: 0.25rem 0;
+        }
+
+        /* Utility Classes */
+        .hidden { display: none; }
+        
+        /* Icon SVGs as background images for performance */
+        .icon-dollar::before { content: '💰'; }
+        .icon-users::before { content: '👥'; }
+        .icon-check::before { content: '✓'; }
+        .icon-alert::before { content: '⚠️'; }
+        .icon-package::before { content: '📦'; }
+    </style>
+</head>
+<body>
+    <div class="staffbase-widget-container" id="sobeysWidget">
+        <!-- Widget will be injected here -->
+    </div>
+
+    <script>
+        // Data scenarios
+        const SCENARIOS = {
+          on_track: {
+            metadata: {
+              widget_version: "1.0.0",
+              generated_at: "2026-02-05T14:30:00Z",
+              user_role: "store_manager",
+              store_region: "Atlantic"
+            },
+            store_at_a_glance: {
+              store_id: "SBY-0421",
+              store_name: "Sobeys Bedford Place",
+              date: "2026-02-05",
+              today_sales_actual: 31240.50,
+              today_sales_target: 32000.00,
+              today_sales_variance_pct: -2.4,
+              today_sales_status: "on_track",
+              wtd_sales_actual: 158920.75,
+              wtd_sales_target: 160000.00,
+              wtd_sales_variance_pct: -0.7,
+              labour_pct_actual: 11.2,
+              labour_pct_target: 11.5,
+              labour_status: "on_track",
+              shrink_status: "on_track",
+              shrink_value: 285.40,
+              customer_count: 1047,
+              avg_basket_size: 29.84
+            },
+            people_hr: {
+              scheduled_headcount: 42,
+              present_headcount: 41,
+              attendance_status: "good",
+              open_positions: [
+                {
+                  role_title: "Cashier (Part-Time)",
+                  department: "Front End",
+                  days_open: 12,
+                  priority: "medium"
+                }
+              ],
+              hr_alerts: [
+                {
+                  alert_id: "HR-2026-034",
+                  title: "New WHMIS Training Module Available",
+                  type: "training",
+                  affected_count: 0,
+                  due_date: "2026-02-28"
+                }
+              ],
+              team_pulse_score: 8,
+              team_pulse_trend: "up"
+            },
+            tasks: {
+              items: [
+                {
+                  task_id: "TSK-2026-0205-01",
+                  title: "Set up Valentine's Day end caps",
+                  category: "merchandising",
+                  priority: "high",
+                  status: "completed",
+                  due_date: "2026-02-05",
+                  due_time: "10:00",
+                  assigned_to: "Sarah Chen (Produce Manager)",
+                  assigned_role: "department_manager",
+                  created_date: "2026-02-03T08:00:00Z",
+                  notes: "Aisles 3, 7, and front entrance displays"
+                },
+                {
+                  task_id: "TSK-2026-0205-02",
+                  title: "Weekly temperature log - all coolers",
+                  category: "safety",
+                  priority: "high",
+                  status: "completed",
+                  due_date: "2026-02-05",
+                  due_time: "09:00",
+                  assigned_to: "Marc Leblanc (Assistant Manager)",
+                  assigned_role: "assistant_manager",
+                  created_date: "2026-02-05T06:00:00Z"
+                },
+                {
+                  task_id: "TSK-2026-0205-03",
+                  title: "Review new promotional flyer items",
+                  category: "merchandising",
+                  priority: "medium",
+                  status: "in_progress",
+                  due_date: "2026-02-05",
+                  due_time: "16:00",
+                  assigned_to: "Emma Thompson (Store Manager)",
+                  assigned_role: "store_manager",
+                  created_date: "2026-02-04T14:30:00Z",
+                  notes: "Flyer starts Feb 6"
+                },
+                {
+                  task_id: "TSK-2026-0205-04",
+                  title: "Stock audit - Bakery section",
+                  category: "other",
+                  priority: "low",
+                  status: "not_started",
+                  due_date: "2026-02-06",
+                  assigned_to: "James Park (Bakery Manager)",
+                  assigned_role: "department_manager",
+                  created_date: "2026-02-04T10:00:00Z"
+                }
+              ],
+              overdue_task_count: 0
+            },
+            alerts: {
+              items: [
+                {
+                  alert_id: "ALT-2026-0205-01",
+                  title: "Snowfall Warning - Stock Salt & Shovels",
+                  severity: "info",
+                  category: "weather",
+                  timestamp: "2026-02-05T07:00:00Z",
+                  description: "Environment Canada has issued a snowfall warning for 15-20cm tonight. Ensure winter products are well-stocked.",
+                  action_required: "Check salt and snow shovel inventory",
+                  acknowledged: true,
+                  resolved: false
+                }
+              ]
+            },
+            quick_actions: [
+              { action_id: "ACT-sales-dashboard", label: "Sales Dashboard", type: "external_link" },
+              { action_id: "ACT-people-portal", label: "People Portal", type: "external_link" },
+              { action_id: "ACT-safety-checklist", label: "Safety Checklist", type: "navigation" },
+              { action_id: "ACT-create-task", label: "Create Task", type: "modal" }
+            ]
+          },
+          under_pressure: {
+            metadata: {
+              widget_version: "1.0.0",
+              generated_at: "2026-02-05T14:30:00Z",
+              user_role: "store_manager",
+              store_region: "Ontario"
+            },
+            store_at_a_glance: {
+              store_id: "SBY-1247",
+              store_name: "Sobeys Lakeshore",
+              date: "2026-02-05",
+              today_sales_actual: 26180.25,
+              today_sales_target: 35000.00,
+              today_sales_variance_pct: -25.2,
+              today_sales_status: "behind",
+              wtd_sales_actual: 132450.00,
+              wtd_sales_target: 175000.00,
+              wtd_sales_variance_pct: -24.3,
+              labour_pct_actual: 14.8,
+              labour_pct_target: 11.5,
+              labour_status: "over",
+              shrink_status: "watch",
+              shrink_value: 1240.75,
+              customer_count: 743,
+              avg_basket_size: 35.24
+            },
+            people_hr: {
+              scheduled_headcount: 48,
+              present_headcount: 43,
+              attendance_status: "concern",
+              open_positions: [
+                { role_title: "Deli Clerk", department: "Deli", days_open: 23, priority: "critical" },
+                { role_title: "Meat Cutter", department: "Meat", days_open: 31, priority: "high" },
+                { role_title: "Grocery Clerk (Full-Time)", department: "Grocery", days_open: 8, priority: "high" }
+              ],
+              hr_alerts: [
+                { alert_id: "HR-2026-089", title: "Food Safety Training Overdue", type: "training", affected_count: 7, due_date: "2026-02-10" },
+                { alert_id: "HR-2026-091", title: "Performance Reviews Due - Q4", type: "compliance", affected_count: 12, due_date: "2026-02-15" },
+                { alert_id: "HR-2026-093", title: "Overtime Threshold Exceeded", type: "policy", affected_count: 4, due_date: "2026-02-05" }
+              ],
+              team_pulse_score: 6,
+              team_pulse_trend: "down"
+            },
+            tasks: {
+              items: [
+                {
+                  task_id: "TSK-2026-0203-08",
+                  title: "Monthly fire extinguisher inspection",
+                  category: "safety",
+                  priority: "urgent",
+                  status: "overdue",
+                  due_date: "2026-02-03",
+                  due_time: "17:00",
+                  assigned_to: "Michael Rodriguez (Assistant Manager)",
+                  assigned_role: "assistant_manager",
+                  created_date: "2026-02-01T08:00:00Z",
+                  notes: "All 14 units throughout store"
+                },
+                {
+                  task_id: "TSK-2026-0204-12",
+                  title: "Complete refrigeration maintenance report",
+                  category: "maintenance",
+                  priority: "high",
+                  status: "overdue",
+                  due_date: "2026-02-04",
+                  due_time: "16:00",
+                  assigned_to: "Jennifer Wu (Store Manager)",
+                  assigned_role: "store_manager",
+                  created_date: "2026-02-03T10:15:00Z",
+                  notes: "Follow-up from Jan 28 service call"
+                },
+                {
+                  task_id: "TSK-2026-0205-14",
+                  title: "Set up Valentine's Day end caps",
+                  category: "merchandising",
+                  priority: "high",
+                  status: "overdue",
+                  due_date: "2026-02-05",
+                  due_time: "10:00",
+                  assigned_to: "David Kim (Grocery Manager)",
+                  assigned_role: "department_manager",
+                  created_date: "2026-02-03T08:30:00Z",
+                  notes: "Delayed due to staffing shortages"
+                },
+                {
+                  task_id: "TSK-2026-0205-15",
+                  title: "Weekly temperature log - all coolers",
+                  category: "safety",
+                  priority: "high",
+                  status: "in_progress",
+                  due_date: "2026-02-05",
+                  due_time: "09:00",
+                  assigned_to: "Michael Rodriguez (Assistant Manager)",
+                  assigned_role: "assistant_manager",
+                  created_date: "2026-02-05T06:00:00Z"
+                },
+                {
+                  task_id: "TSK-2026-0205-16",
+                  title: "Process produce delivery and stock",
+                  category: "other",
+                  priority: "high",
+                  status: "in_progress",
+                  due_date: "2026-02-05",
+                  due_time: "14:00",
+                  assigned_to: "Amy Patel (Produce Manager)",
+                  assigned_role: "department_manager",
+                  created_date: "2026-02-05T05:30:00Z",
+                  notes: "Delivery arrived 2 hours late"
+                }
+              ],
+              overdue_task_count: 3
+            },
+            alerts: {
+              items: [
+                {
+                  alert_id: "ALT-2026-0205-03",
+                  title: "Walk-in Cooler Temperature High",
+                  severity: "critical",
+                  category: "equipment",
+                  timestamp: "2026-02-05T09:15:00Z",
+                  description: "Dairy walk-in temperature at 6.2°C, threshold is 4°C. Compressor cycling irregularly.",
+                  action_required: "Call maintenance contractor immediately - refrigeration line",
+                  acknowledged: false,
+                  resolved: false
+                },
+                {
+                  alert_id: "ALT-2026-0205-04",
+                  title: "POS Lane 3 Intermittent Failure",
+                  severity: "warning",
+                  category: "system",
+                  timestamp: "2026-02-05T11:42:00Z",
+                  description: "Lane 3 register freezing during card transactions. Rebooted twice, issue persists.",
+                  action_required: "Close lane if issues continue; IT ticket submitted",
+                  acknowledged: true,
+                  resolved: false
+                },
+                {
+                  alert_id: "ALT-2026-0205-05",
+                  title: "Customer Slip & Fall - Under Investigation",
+                  severity: "warning",
+                  category: "safety",
+                  timestamp: "2026-02-05T10:20:00Z",
+                  description: "Customer slipped near produce misting station. First aid provided, incident report filed.",
+                  action_required: "Review video footage, complete follow-up documentation by EOD",
+                  acknowledged: true,
+                  resolved: false
+                },
+                {
+                  alert_id: "ALT-2026-0205-07",
+                  title: "Freezing Rain Warning Tonight",
+                  severity: "info",
+                  category: "weather",
+                  timestamp: "2026-02-05T08:30:00Z",
+                  description: "Environment Canada warns of freezing rain 6pm-midnight.",
+                  action_required: "Ensure backup generator fueled; brief closing team on safety",
+                  acknowledged: true,
+                  resolved: false
+                }
+              ]
+            },
+            quick_actions: [
+              { action_id: "ACT-sales-dashboard", label: "Sales Dashboard", type: "external_link" },
+              { action_id: "ACT-people-portal", label: "People Portal", type: "external_link" },
+              { action_id: "ACT-safety-checklist", label: "Safety Checklist", type: "navigation" },
+              { action_id: "ACT-create-task", label: "Create Task", type: "modal" }
+            ]
+          }
+        };
+
+        // Widget State
+        let currentScenario = 'on_track';
+        const expandedSections = {
+            people: false,
+            tasks: true,
+            alerts: true
+        };
+
+        // Utility Functions
+        const formatCurrency = (value) => {
+            return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(value);
+        };
+
+        const formatPercent = (value) => {
+            return `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
+        };
+
+        const formatDate = (dateString) => {
+            return new Date(dateString).toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' });
+        };
+
+        const formatDateTime = (dateString) => {
+            return new Date(dateString).toLocaleString('en-CA');
+        };
+
+        // Render Functions
+        function renderHeader(data) {
+            const newAlertCount = data.alerts.items.filter(a => !a.acknowledged).length;
+            
+            return `
+                <div class="widget-header">
+                    <div class="store-info">
+                        <div class="store-name">
+                            <h1>${data.store_at_a_glance.store_name}</h1>
+                            <p class="store-id">Store #${data.store_at_a_glance.store_id}</p>
+                        </div>
+                        <div class="store-meta">
+                            <p class="region">${data.metadata.store_region} Region</p>
+                            <p class="date">${formatDate(data.store_at_a_glance.date)}</p>
+                        </div>
+                    </div>
+                    <div class="scenario-toggle">
+                        <button class="scenario-button ${currentScenario === 'on_track' ? 'active' : 'inactive'}" 
+                                onclick="switchScenario('on_track')">
+                            On Track
+                        </button>
+                        <button class="scenario-button ${currentScenario === 'under_pressure' ? 'active' : 'inactive'}" 
+                                onclick="switchScenario('under_pressure')">
+                            Under Pressure
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderKPISection(data) {
+            const kpi = data.store_at_a_glance;
+            return `
+                <div class="widget-section">
+                    <div class="section-content always-visible">
+                        <h2 class="section-title">
+                            <span class="icon-dollar"></span>
+                            Store at a Glance
+                        </h2>
+                        
+                        <div class="kpi-main">
+                            <div class="kpi-header">
+                                <div>
+                                    <p class="kpi-label">Today's Sales</p>
+                                    <p class="kpi-value">${formatCurrency(kpi.today_sales_actual)}</p>
+                                </div>
+                                <span class="status-badge status-${kpi.today_sales_status.replace('_', '-')}">
+                                    ${kpi.today_sales_status.replace('_', ' ').toUpperCase()}
+                                </span>
+                            </div>
+                            <div class="kpi-details">
+                                <span>Target: ${formatCurrency(kpi.today_sales_target)}</span>
+                                <span class="${kpi.today_sales_variance_pct < 0 ? 'variance-negative' : 'variance-positive'}">
+                                    ${formatPercent(kpi.today_sales_variance_pct)}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="metrics-grid">
+                            <div class="metric-card metric-card-blue">
+                                <p class="metric-label">Week-to-Date</p>
+                                <p class="metric-value">${formatCurrency(kpi.wtd_sales_actual)}</p>
+                                <p class="metric-sub">of ${formatCurrency(kpi.wtd_sales_target)}</p>
+                            </div>
+                            
+                            <div class="metric-card metric-card-purple">
+                                <p class="metric-label">Labour %</p>
+                                <p class="metric-value">${kpi.labour_pct_actual}%</p>
+                                <span class="status-badge status-${kpi.labour_status}">
+                                    Target: ${kpi.labour_pct_target}%
+                                </span>
+                            </div>
+                            
+                            <div class="metric-card metric-card-yellow">
+                                <p class="metric-label">Customers</p>
+                                <p class="metric-value">${kpi.customer_count}</p>
+                                <p class="metric-sub">Avg: ${formatCurrency(kpi.avg_basket_size)}</p>
+                            </div>
+                            
+                            <div class="metric-card metric-card-orange">
+                                <p class="metric-label">Shrink</p>
+                                <span class="status-badge status-${kpi.shrink_status.replace('_', '-')}">
+                                    ${kpi.shrink_status.replace('_', ' ').toUpperCase()}
+                                </span>
+                                <p class="metric-sub">${formatCurrency(kpi.shrink_value)}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPeopleSection(data) {
+            const people = data.people_hr;
+            const isExpanded = expandedSections.people;
+            
+            let positionsHTML = '';
+            if (people.open_positions.length > 0) {
+                positionsHTML = `
+                    <div class="list-section">
+                        <h3 class="list-title">Open Positions (${people.open_positions.length})</h3>
+                        ${people.open_positions.map(pos => `
+                            <div class="list-item">
+                                <div class="list-item-header">
+                                    <div>
+                                        <p class="list-item-title">${pos.role_title}</p>
+                                        <p class="list-item-subtitle">${pos.department}</p>
+                                    </div>
+                                    <span class="priority-badge priority-${pos.priority}">${pos.priority}</span>
+                                </div>
+                                <p class="list-item-meta">${pos.days_open} days open</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            let hrAlertsHTML = '';
+            if (people.hr_alerts.length > 0) {
+                hrAlertsHTML = `
+                    <div class="list-section">
+                        <h3 class="list-title">HR Alerts</h3>
+                        ${people.hr_alerts.map(alert => `
+                            <div class="hr-alert-card">
+                                <p class="hr-alert-title">${alert.title}</p>
+                                <div class="hr-alert-meta">
+                                    <span>${alert.type}</span>
+                                    ${alert.affected_count > 0 ? `<span>${alert.affected_count} affected</span>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            const trendIcon = people.team_pulse_trend === 'up' ? '📈' : 
+                            people.team_pulse_trend === 'down' ? '📉' : '➖';
+
+            return `
+                <div class="widget-section">
+                    <div class="section-header" onclick="toggleSection('people')">
+                        <h2 class="section-title">
+                            <span class="icon-users"></span>
+                            People & HR
+                            ${people.hr_alerts.length > 0 ? `<span class="badge badge-red">${people.hr_alerts.length}</span>` : ''}
+                        </h2>
+                        <svg class="chevron ${isExpanded ? 'expanded' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                    
+                    <div class="section-content ${isExpanded ? 'expanded' : ''}">
+                        <div class="info-card">
+                            <div class="info-header">
+                                <span class="info-label">Attendance</span>
+                                <span class="status-badge status-${people.attendance_status}">
+                                    ${people.attendance_status.toUpperCase()}
+                                </span>
+                            </div>
+                            <div class="info-details">
+                                <span>Present: <strong>${people.present_headcount}</strong></span>
+                                <span>Scheduled: <strong>${people.scheduled_headcount}</strong></span>
+                            </div>
+                        </div>
+
+                        ${people.team_pulse_score ? `
+                            <div class="pulse-card">
+                                <div>
+                                    <p class="metric-label">Team Pulse</p>
+                                    <p class="pulse-score">${people.team_pulse_score}<span class="pulse-score-max">/10</span></p>
+                                </div>
+                                <span style="font-size: 1.5rem;">${trendIcon}</span>
+                            </div>
+                        ` : ''}
+
+                        ${positionsHTML}
+                        ${hrAlertsHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTasksSection(data) {
+            const tasks = data.tasks;
+            const isExpanded = expandedSections.tasks;
+
+            const tasksHTML = tasks.items.map(task => {
+                const statusClass = `task-${task.status.replace('_', '-')}`;
+                return `
+                    <div class="task-card ${statusClass}">
+                        <div class="task-header">
+                            <p class="task-title">${task.title}</p>
+                            <span class="priority-badge priority-${task.priority}">${task.priority}</span>
+                        </div>
+                        <div class="task-meta">
+                            <span style="text-transform: capitalize;">${task.category}</span>
+                            <span>•</span>
+                            <span>${task.assigned_to}</span>
+                        </div>
+                        <div class="task-time">
+                            <span>🕐</span>
+                            <span>Due: ${task.due_date}${task.due_time ? ' at ' + task.due_time : ''}</span>
+                        </div>
+                        ${task.notes ? `<p class="task-notes">${task.notes}</p>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="widget-section">
+                    <div class="section-header" onclick="toggleSection('tasks')">
+                        <h2 class="section-title">
+                            <span class="icon-check"></span>
+                            Tasks & Operations
+                            ${tasks.overdue_task_count > 0 ? `<span class="badge badge-red">${tasks.overdue_task_count} overdue</span>` : ''}
+                        </h2>
+                        <svg class="chevron ${isExpanded ? 'expanded' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                    
+                    <div class="section-content ${isExpanded ? 'expanded' : ''}">
+                        ${tasksHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAlertsSection(data) {
+            const alerts = data.alerts;
+            const isExpanded = expandedSections.alerts;
+            const newAlertCount = alerts.items.filter(a => !a.acknowledged).length;
+
+            let alertsHTML = '';
+            if (alerts.items.length === 0) {
+                alertsHTML = `
+                    <div class="no-alerts">
+                        <svg class="check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p>No active alerts</p>
+                    </div>
+                `;
+            } else {
+                alertsHTML = alerts.items.map(alert => {
+                    const severityClass = `alert-${alert.severity}`;
+                    return `
+                        <div class="alert-card ${severityClass}">
+                            <div class="alert-header-row">
+                                <div style="flex: 1;">
+                                    <div class="alert-badges">
+                                        <span class="severity-badge severity-${alert.severity}">
+                                            ${alert.severity.toUpperCase()}
+                                        </span>
+                                        <span class="category-badge">${alert.category}</span>
+                                    </div>
+                                    <p class="alert-title">${alert.title}</p>
+                                </div>
+                                ${!alert.acknowledged ? '<div class="new-indicator"></div>' : ''}
+                            </div>
+                            <p class="alert-description">${alert.description}</p>
+                            ${alert.action_required ? `
+                                <div class="alert-action">
+                                    <p class="action-label">Action Required:</p>
+                                    <p class="action-text">${alert.action_required}</p>
+                                </div>
+                            ` : ''}
+                            <p class="alert-timestamp">${formatDateTime(alert.timestamp)}</p>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            return `
+                <div class="widget-section">
+                    <div class="section-header" onclick="toggleSection('alerts')">
+                        <h2 class="section-title">
+                            <span class="icon-alert"></span>
+                            Alerts & Incidents
+                            ${newAlertCount > 0 ? `<span class="badge badge-red badge-pulse">${newAlertCount} new</span>` : ''}
+                        </h2>
+                        <svg class="chevron ${isExpanded ? 'expanded' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                    
+                    <div class="section-content ${isExpanded ? 'expanded' : ''}">
+                        ${alertsHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderQuickActions(data) {
+            const actionsHTML = data.quick_actions.map(action => {
+                const icon = action.type === 'external_link' ? '🔗' : 
+                           action.type === 'modal' ? '➕' : 
+                           '📅';
+                
+                return `
+                    <button class="action-button">
+                        <div class="action-icon-wrapper">
+                            <span>${icon}</span>
+                        </div>
+                        <p class="action-label">${action.label}</p>
+                    </button>
+                `;
+            }).join('');
+
+            return `
+                <div class="widget-section">
+                    <div class="section-content always-visible">
+                        <h2 class="section-title">
+                            <span class="icon-package"></span>
+                            Quick Actions
+                        </h2>
+                        <div class="actions-grid">
+                            ${actionsHTML}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderFooter(data) {
+            return `
+                <div class="widget-footer">
+                    <p>Last updated: ${formatDateTime(data.metadata.generated_at)}</p>
+                    <p>Widget v${data.metadata.widget_version}</p>
+                </div>
+            `;
+        }
+
+        // Main Render Function
+        function renderWidget() {
+            const data = SCENARIOS[currentScenario];
+            const container = document.getElementById('sobeysWidget');
+            
+            container.innerHTML = `
+                ${renderHeader(data)}
+                <div class="widget-content">
+                    ${renderKPISection(data)}
+                    ${renderPeopleSection(data)}
+                    ${renderTasksSection(data)}
+                    ${renderAlertsSection(data)}
+                    ${renderQuickActions(data)}
+                </div>
+                ${renderFooter(data)}
+            `;
+        }
+
+        // Event Handlers
+        function switchScenario(scenario) {
+            currentScenario = scenario;
+            renderWidget();
+        }
+
+        function toggleSection(section) {
+            expandedSections[section] = !expandedSections[section];
+            renderWidget();
+        }
+
+        // Make functions globally accessible
+        window.switchScenario = switchScenario;
+        window.toggleSection = toggleSection;
+
+        // Initialize widget
+        document.addEventListener('DOMContentLoaded', () => {
+            renderWidget();
+        });
+
+        // Render immediately if DOM already loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', renderWidget);
+        } else {
+            renderWidget();
+        }
+    </script>
+</body>
+</html>
