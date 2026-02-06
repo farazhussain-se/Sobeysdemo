@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#16a34a">
+    <title>My Schedule - Sobeys</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            /* iOS Safe Area Support */
+            --sat: env(safe-area-inset-top);
+            --sar: env(safe-area-inset-right);
+            --sab: env(safe-area-inset-bottom);
+            --sal: env(safe-area-inset-left);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #f2f2f7;
+            padding-bottom: calc(80px + var(--sab));
+            overscroll-behavior-y: none;
+            position: fixed;
+            width: 100%;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        /* iOS momentum scrolling */
+        body {
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Header */
+        .app-header {
+            background: linear-gradient(180deg, #16a34a 0%, #15803d 100%);
+            color: white;
+            padding: calc(var(--sat) + 1rem) 1rem 1.5rem 1rem;
+            box-shadow: none;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .employee-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .scenario-toggle {
+            display: flex;
+            gap: 0.25rem;
+            background: rgba(255,255,255,0.15);
+            border-radius: 8px;
+            padding: 0.125rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .scenario-btn {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+            background: transparent;
+        }
+
+        .scenario-btn.active {
+            background: white;
+            color: #15803d;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .scenario-btn:active {
+            transform: scale(0.96);
+        }
+
+        .store-info-header {
+            font-size: 0.9375rem;
+            font-weight: 500;
+            opacity: 0.9;
+            letter-spacing: -0.01em;
+        }
+
+        .last-updated {
+            font-size: 0.8125rem;
+            opacity: 0.75;
+            margin-top: 0.375rem;
+            font-weight: 400;
+        }
+
+        /* Content Container */
+        .app-content {
+            padding: 1rem;
+            padding-top: 0;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            border: 0.5px solid rgba(0,0,0,0.04);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1c1c1e;
+            letter-spacing: -0.02em;
+        }
+
+        /* Today's Shift - Hero Card */
+        .hero-shift {
+            background: linear-gradient(180deg, #16a34a 0%, #15803d 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            margin-top: 1rem;
+            box-shadow: 0 4px 16px rgba(22, 163, 74, 0.25);
+        }
+
+        .shift-status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 0.875rem;
+            border-radius: 100px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            letter-spacing: -0.01em;
+        }
+
+        .status-upcoming {
+            background: rgba(10, 132, 255, 0.15);
+            color: #64b5f6;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-in-progress {
+            background: rgba(255, 204, 0, 0.15);
+            color: #ffd60a;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-completed {
+            background: rgba(142, 142, 147, 0.15);
+            color: #c7c7cc;
+            backdrop-filter: blur(10px);
+        }
+
+        .shift-time {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+
+        .shift-duration {
+            font-size: 1rem;
+            opacity: 0.85;
+            margin-bottom: 1.25rem;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+
+        .shift-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.625rem;
+        }
+
+        .shift-detail-row {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+
+        .detail-icon {
+            font-size: 1.25rem;
+            width: 28px;
+            text-align: center;
+        }
+
+        .breaks-section {
+            margin-top: 1.25rem;
+            padding-top: 1.25rem;
+            border-top: 0.5px solid rgba(255,255,255,0.2);
+        }
+
+        .breaks-title {
+            font-size: 0.8125rem;
+            opacity: 0.7;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .break-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: rgba(255,255,255,0.12);
+            border-radius: 12px;
+            margin-bottom: 0.375rem;
+            font-size: 0.9375rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .break-type {
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        /* Upcoming Shifts */
+        .shift-list-item {
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid #e5e7eb;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .shift-list-item:active {
+            transform: scale(0.99);
+            opacity: 0.9;
+        }
+
+        .shift-list-item.unseen {
+            background: #fffbeb;
+            border-left-color: #f59e0b;
+        }
+
+        .shift-list-item.unseen::before {
+            content: '';
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 10px;
+            height: 10px;
+            background: #f59e0b;
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+        }
+
+        .shift-date {
+            font-size: 0.8125rem;
+            color: #8e8e93;
+            font-weight: 600;
+            margin-bottom: 0.375rem;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .shift-time-compact {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1c1c1e;
+            margin-bottom: 0.375rem;
+            letter-spacing: -0.02em;
+        }
+
+        .shift-info-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9375rem;
+            color: #8e8e93;
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+
+        .shift-info-divider {
+            color: #c7c7cc;
+        }
+
+        .seen-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            margin-top: 0.625rem;
+        }
+
+        .seen-badge.seen {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .seen-badge.unseen {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1.125rem 0.875rem;
+            min-height: 88px;
+            border: none;
+            border-radius: 14px;
+            background: #f9fafb;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1c1c1e;
+            letter-spacing: -0.01em;
+        }
+
+        .action-btn:active {
+            transform: scale(0.96);
+            background: #f0f0f5;
+        }
+
+        .action-btn-icon {
+            font-size: 1.75rem;
+        }
+
+        .action-btn-primary {
+            background: #16a34a;
+            color: white;
+        }
+
+        .action-btn-primary:active {
+            background: #15803d;
+        }
+
+        /* Pending Requests */
+        .request-item {
+            padding: 1rem;
+            background: #eff6ff;
+            border-left: 3px solid #3b82f6;
+            border-radius: 12px;
+            margin-bottom: 0.625rem;
+        }
+
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.625rem;
+        }
+
+        .request-type {
+            font-size: 0.9375rem;
+            font-weight: 700;
+            color: #1e3a8a;
+            letter-spacing: -0.01em;
+        }
+
+        .request-status {
+            padding: 0.375rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.8125rem;
+            font-weight: 700;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-approved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-declined {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .request-details {
+            font-size: 0.875rem;
+            color: #1c1c1e;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .request-date {
+            font-size: 0.8125rem;
+            color: #8e8e93;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* Store Info Section */
+        .store-info-grid {
+            display: grid;
+            gap: 0.625rem;
+        }
+
+        .info-item {
+            display: flex;
+            gap: 0.875rem;
+            padding: 0.5rem 0;
+        }
+
+        .info-icon {
+            font-size: 1.375rem;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f9fafb;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .info-content {
+            flex: 1;
+        }
+
+        .info-label {
+            font-size: 0.8125rem;
+            color: #8e8e93;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            color: #1c1c1e;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .announcement-card {
+            padding: 1rem;
+            background: #fffbeb;
+            border-left: 3px solid #f59e0b;
+            border-radius: 12px;
+            margin-top: 0.75rem;
+        }
+
+        .announcement-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 0.375rem;
+            letter-spacing: -0.01em;
+        }
+
+        .announcement-text {
+            font-size: 0.875rem;
+            color: #78350f;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 2.5rem 1rem;
+            color: #8e8e93;
+        }
+
+        .empty-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.4;
+        }
+
+        .empty-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #1c1c1e;
+            margin-bottom: 0.375rem;
+            letter-spacing: -0.02em;
+        }
+
+        .empty-text {
+            font-size: 0.9375rem;
+            font-weight: 500;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-top: 0.5px solid rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            padding: 0.5rem 0 calc(0.5rem + var(--sab)) 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            color: #8e8e93;
+            font-size: 0.625rem;
+            cursor: pointer;
+            flex: 1;
+            padding: 0.375rem;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+
+        .nav-item:active {
+            transform: scale(0.95);
+            opacity: 0.7;
+        }
+
+        .nav-item.active {
+            color: #16a34a;
+        }
+
+        .nav-icon {
+            font-size: 1.625rem;
+        }
+
+        /* Utility */
+        .divider {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        // Data Scenarios
+        const SCENARIOS = {
+            stable: {
+                metadata: {
+                    employee_id: "EMP-45821",
+                    employee_name: "Sarah Chen",
+                    employee_role: "Produce Clerk",
+                    store_id: "SBY-0421",
+                    store_name: "Sobeys Bedford Place",
+                    last_updated: "2026-02-06T08:15:00Z"
+                },
+                today_shift: {
+                    shift_id: "SH-2026-0206-001",
+                    date: "2026-02-06",
+                    start_time: "10:00",
+                    end_time: "18:00",
+                    duration_hours: 8,
+                    department: "Produce",
+                    role: "Produce Clerk",
+                    store_id: "SBY-0421",
+                    store_name: "Sobeys Bedford Place",
+                    status: "in_progress",
+                    breaks: [
+                        {
+                            break_id: "BR-001",
+                            type: "meal",
+                            duration_minutes: 30,
+                            start_time: "13:00",
+                            paid: false
+                        },
+                        {
+                            break_id: "BR-002",
+                            type: "rest",
+                            duration_minutes: 15,
+                            start_time: "15:30",
+                            paid: true
+                        }
+                    ],
+                    notes: null
+                },
+                upcoming_shifts: [
+                    {
+                        shift_id: "SH-2026-0207-001",
+                        date: "2026-02-07",
+                        start_time: "10:00",
+                        end_time: "18:00",
+                        duration_hours: 8,
+                        department: "Produce",
+                        role: "Produce Clerk",
+                        store_id: "SBY-0421",
+                        store_name: "Sobeys Bedford Place",
+                        status: "scheduled",
+                        acknowledged: true
+                    },
+                    {
+                        shift_id: "SH-2026-0209-001",
+                        date: "2026-02-09",
+                        start_time: "08:00",
+                        end_time: "16:00",
+                        duration_hours: 8,
+                        department: "Produce",
+                        role: "Produce Clerk",
+                        store_id: "SBY-0421",
+                        store_name: "Sobeys Bedford Place",
+                        status: "scheduled",
+                        acknowledged: true
+                    },
+                    {
+                        shift_id: "SH-2026-0210-001",
+                        date: "2026-02-10",
+                        start_time: "10:00",
+                        end_time: "18:00",
+                        duration_hours: 8,
+                        department: "Produce",
+                        role: "Produce Clerk",
+                        store_id: "SBY-0421",
+                        store_name: "Sobeys Bedford Place",
+                        status: "scheduled",
+                        acknowledged: true
+                    },
+                    {
+                        shift_id: "SH-2026-0211-001",
+                        date: "2026-02-11",
+                        start_time: "12:00",
+                        end_time: "20:00",
+                        duration_hours: 8,
+                        department: "Produce",
+                        role: "Produce Clerk",
+                        store_id: "SBY-0421",
+                        store_name: "Sobeys Bedford Place",
+                        status: "scheduled",
+                        acknowledged: true
+                    }
+                ],
+                pending_requests: [],
+                store_info_today: {
+                    store_hours: {
+                        open: "08:00",
+                        close: "22:00"
+                    },
+                    manager_on_duty: {
+                        name: "Emma Thompson",
+                        role: "Store Manager",
+                        contact_method: "In-store page"
+                    },
+                    announcements: [
+                        {
+                            announcement_id: "ANN-001",
+                            title: "New Flyer Starts Today",
+                            message: "Valentine's Day flyer is active. Check end-cap displays.",
+                            priority: "normal"
+                        }
+                    ]
+                }
+            },
+            busy: {
+                metadata: {
+                    employee_id: "EMP-45821",
+                    employee_name: "Sarah Chen",
+                    employee_role: "Produce Clerk",
+                    store_id: "SBY-0421",
+                    store_name: "Sobeys Bedford Place",
+                    last_updated: "2026-02-06T08:15:00Z"
+                },
+                today_shift: {
+                    shift_id: "SH-2026-0206-001",
+                    date: "2026-02-06",
+                    start_time: "10:00",
+                    end_time: "18:00",
+                    duration_hours: 8,
+                    department: "Produce",
+                    role: "Produce Clerk",
+                    store_id: "SBY-0421",
+                    store_name: "Sobeys Bedford Place",
+                    status: "in_progress",
+                    breaks: [
+                        {
+                            break_id: "BR-001",
+                            type: "meal",
+                            duration_minutes: 30,
+                            start_time: "13:00",
+                            paid: false
+                        },
+                        {
+                            break_id: "BR-002",
+                            type: "rest",
+                            duration_minutes: 15,
+                            start_time: "15:30",
+                            paid: true
+                        }
+                    ],
+                    notes: null
+                },
+                upcoming_shifts: [
+                    {
+                        shift_id: "SH-2026-0207-001",
+                        date: "2026-02-07",
+                        start_time: "10:00",
+                        end_time: "18:00",
+                        duration_hours: 8,
+                        department: "Produce",
+                        role: "Produce Clerk",
+                        store_id: "SBY-0421",
+                        store_name: "Sobeys Bedford Place",
+                        status: "scheduled",
+                        acknowledged: true
+                    },
+                    {
+                        shift_id: "SH-2026-0208-001",
+                        date: "2026-02-08",
+                        start_time: "06:00",
+                        end_time: "10:00",
+                        duration_hours: 4,
+                        department: "Produce",
+                        role: "Produce Clerk",
+                        store_id: "SBY-0421",
+                        store_name: "Sobeys Bedford Place",
+                        status: "scheduled",
+                        acknowledged: false,
+                        notes: "Extra shift - morning stock"
+                    },
+                    {
+                        shift_id: "SH-2026-0209-001",
+                        date: "2026-02-09",
+                        start_time: "08:00",
+                        end_time: "16:00",
+                        duration_hours: 8,
+                        department: "Produce",
+                        role: "Produce Clerk",
+                        store_id: "SBY-0421",
+                        store_name: "Sobeys Bedford Place",
+                        status: "scheduled",
+                        acknowledged: true
+                    },
+                    {
+                        shift_id: "SH-2026-0210-001",
+                        date: "2026-02-10",
+                        start_time: "10:00",
+                        end_time: "18:00",
+                        duration_hours: 8,
+                        department: "Produce",
+                        role: "Produce Clerk",
+                        store_id: "SBY-0421",
+                        store_name: "Sobeys Bedford Place",
+                        status: "scheduled",
+                        acknowledged: false
+                    },
+                    {
+                        shift_id: "SH-2026-0211-001",
+                        date: "2026-02-11",
+                        start_time: "12:00",
+                        end_time: "20:00",
+                        duration_hours: 8,
+                        department: "Produce",
+                        role: "Produce Clerk",
+                        store_id: "SBY-0421",
+                        store_name: "Sobeys Bedford Place",
+                        status: "scheduled",
+                        acknowledged: true
+                    }
+                ],
+                pending_requests: [
+                    {
+                        request_id: "REQ-2026-001",
+                        type: "shift_swap",
+                        status: "pending",
+                        shift_id: "SH-2026-0211-001",
+                        shift_date: "2026-02-11",
+                        requested_with: "Marcus Lee",
+                        requested_date: "2026-02-05T14:30:00Z",
+                        reason: "Personal appointment"
+                    },
+                    {
+                        request_id: "REQ-2026-002",
+                        type: "shift_offer",
+                        status: "pending",
+                        shift_id: "SH-2026-0210-001",
+                        shift_date: "2026-02-10",
+                        requested_date: "2026-02-05T16:45:00Z",
+                        reason: "Available for pickup"
+                    }
+                ],
+                store_info_today: {
+                    store_hours: {
+                        open: "08:00",
+                        close: "22:00"
+                    },
+                    manager_on_duty: {
+                        name: "Emma Thompson",
+                        role: "Store Manager",
+                        contact_method: "In-store page"
+                    },
+                    announcements: [
+                        {
+                            announcement_id: "ANN-001",
+                            title: "Inventory Count Tonight",
+                            message: "Produce department count after close. All hands needed for final prep.",
+                            priority: "high"
+                        },
+                        {
+                            announcement_id: "ANN-002",
+                            title: "New Flyer Starts Today",
+                            message: "Valentine's Day flyer is active. Check end-cap displays.",
+                            priority: "normal"
+                        }
+                    ]
+                }
+            }
+        };
+
+        // State
+        let currentScenario = 'stable';
+
+        // Utility Functions
+        function formatTime(time) {
+            const [hours, minutes] = time.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+            return `${displayHour}:${minutes} ${ampm}`;
+        }
+
+        function formatTimeRange(start, end) {
+            return `${formatTime(start)} - ${formatTime(end)}`;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = { weekday: 'short', month: 'short', day: 'numeric' };
+            return date.toLocaleDateString('en-CA', options);
+        }
+
+        function formatDateLong(dateString) {
+            const date = new Date(dateString);
+            const options = { weekday: 'long', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('en-CA', options);
+        }
+
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-CA', { 
+                month: 'short', 
+                day: 'numeric', 
+                hour: 'numeric', 
+                minute: '2-digit' 
+            });
+        }
+
+        function getShiftStatus(shift) {
+            if (!shift) return 'No shift scheduled';
+            
+            switch(shift.status) {
+                case 'upcoming':
+                    return 'Upcoming';
+                case 'in_progress':
+                    return 'In Progress';
+                case 'completed':
+                    return 'Completed';
+                default:
+                    return 'Scheduled';
+            }
+        }
+
+        // Render Functions
+        function renderHeader(data) {
+            return `
+                <div class="app-header">
+                    <div class="header-top">
+                        <div class="employee-name">${data.metadata.employee_name}</div>
+                        <div class="scenario-toggle">
+                            <button class="scenario-btn ${currentScenario === 'stable' ? 'active' : ''}" 
+                                    onclick="switchScenario('stable')">
+                                Stable
+                            </button>
+                            <button class="scenario-btn ${currentScenario === 'busy' ? 'active' : ''}" 
+                                    onclick="switchScenario('busy')">
+                                Busy
+                            </button>
+                        </div>
+                    </div>
+                    <div class="store-info-header">
+                        ${data.metadata.store_name} • ${data.metadata.employee_role}
+                    </div>
+                    <div class="last-updated">
+                        Updated ${formatDateTime(data.metadata.last_updated)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTodayShift(shift) {
+            if (!shift) {
+                return `
+                    <div class="hero-shift">
+                        <div class="empty-state">
+                            <div class="empty-icon">📅</div>
+                            <div class="empty-title">No Shift Today</div>
+                            <div class="empty-text">You're off today. Enjoy your day!</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const breaksHTML = shift.breaks && shift.breaks.length > 0 ? `
+                <div class="breaks-section">
+                    <div class="breaks-title">Breaks</div>
+                    ${shift.breaks.map(br => `
+                        <div class="break-item">
+                            <span class="break-type">
+                                ${br.type === 'meal' ? '🍽️ Meal Break' : '☕ Rest Break'}
+                            </span>
+                            <span>
+                                ${br.duration_minutes} min @ ${formatTime(br.start_time)}
+                                ${br.paid ? '' : '(Unpaid)'}
+                            </span>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '';
+
+            return `
+                <div class="hero-shift">
+                    <div class="shift-status-badge status-${shift.status.replace('_', '-')}">
+                        ${getShiftStatus(shift)}
+                    </div>
+                    
+                    <div class="shift-time">
+                        ${formatTimeRange(shift.start_time, shift.end_time)}
+                    </div>
+                    <div class="shift-duration">
+                        ${shift.duration_hours} hour${shift.duration_hours !== 1 ? 's' : ''}
+                        ${shift.notes ? ` • ${shift.notes}` : ''}
+                    </div>
+                    
+                    <div class="shift-details">
+                        <div class="shift-detail-row">
+                            <span class="detail-icon">👤</span>
+                            <span>${shift.role}</span>
+                        </div>
+                        <div class="shift-detail-row">
+                            <span class="detail-icon">🏪</span>
+                            <span>${shift.department}</span>
+                        </div>
+                        <div class="shift-detail-row">
+                            <span class="detail-icon">📍</span>
+                            <span>${shift.store_name}</span>
+                        </div>
+                    </div>
+                    
+                    ${breaksHTML}
+                </div>
+            `;
+        }
+
+        function renderUpcomingShifts(shifts) {
+            if (!shifts || shifts.length === 0) {
+                return `
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Upcoming Shifts</h2>
+                        </div>
+                        <div class="empty-state">
+                            <div class="empty-icon">📅</div>
+                            <div class="empty-text">No upcoming shifts scheduled</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Upcoming Shifts</h2>
+                        <span style="font-size: 0.875rem; color: #6b7280;">${shifts.length} shift${shifts.length !== 1 ? 's' : ''}</span>
+                    </div>
+                    
+                    ${shifts.map(shift => `
+                        <div class="shift-list-item ${!shift.acknowledged ? 'unseen' : ''}">
+                            <div class="shift-date">${formatDate(shift.date)}</div>
+                            <div class="shift-time-compact">
+                                ${formatTimeRange(shift.start_time, shift.end_time)}
+                            </div>
+                            <div class="shift-info-row">
+                                <span>${shift.department}</span>
+                                <span class="shift-info-divider">•</span>
+                                <span>${shift.duration_hours}h</span>
+                            </div>
+                            ${shift.notes ? `
+                                <div style="margin-top: 0.5rem; font-size: 0.8125rem; color: #f59e0b; font-weight: 500;">
+                                    ⚠️ ${shift.notes}
+                                </div>
+                            ` : ''}
+                            <div class="seen-badge ${shift.acknowledged ? 'seen' : 'unseen'}">
+                                ${shift.acknowledged ? '✓ Seen' : '⚠️ New'}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderPendingRequests(requests) {
+            if (!requests || requests.length === 0) {
+                return '';
+            }
+
+            const typeLabels = {
+                shift_swap: 'Shift Swap Request',
+                shift_offer: 'Shift Offer',
+                availability: 'Availability Update'
+            };
+
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Pending Requests</h2>
+                        <span style="font-size: 0.875rem; color: #6b7280;">${requests.length}</span>
+                    </div>
+                    
+                    ${requests.map(req => `
+                        <div class="request-item">
+                            <div class="request-header">
+                                <div class="request-type">${typeLabels[req.type]}</div>
+                                <span class="request-status status-${req.status}">
+                                    ${req.status.toUpperCase()}
+                                </span>
+                            </div>
+                            <div class="request-details">
+                                ${req.type === 'shift_swap' ? 
+                                    `Swap ${formatDate(req.shift_date)} with ${req.requested_with}` :
+                                    `Offering shift on ${formatDate(req.shift_date)}`
+                                }
+                                ${req.reason ? `<br><em>"${req.reason}"</em>` : ''}
+                            </div>
+                            <div class="request-date">
+                                Requested ${formatDateTime(req.requested_date)}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderShiftActions() {
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Shift Actions</h2>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="action-btn" onclick="alert('Shift swap request flow would open here')">
+                            <span class="action-btn-icon">🔄</span>
+                            <span>Request Swap</span>
+                        </button>
+                        
+                        <button class="action-btn" onclick="alert('Offer shift flow would open here')">
+                            <span class="action-btn-icon">📤</span>
+                            <span>Offer Shift</span>
+                        </button>
+                        
+                        <button class="action-btn" onclick="alert('Availability update flow would open here')">
+                            <span class="action-btn-icon">📅</span>
+                            <span>Update Availability</span>
+                        </button>
+                        
+                        <button class="action-btn" onclick="alert('Time off request flow would open here')">
+                            <span class="action-btn-icon">🏖️</span>
+                            <span>Request Time Off</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStoreInfo(storeInfo) {
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Store Info</h2>
+                    </div>
+                    
+                    <div class="store-info-grid">
+                        <div class="info-item">
+                            <div class="info-icon">🕐</div>
+                            <div class="info-content">
+                                <div class="info-label">Store Hours Today</div>
+                                <div class="info-value">
+                                    ${formatTime(storeInfo.store_hours.open)} - ${formatTime(storeInfo.store_hours.close)}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-icon">👔</div>
+                            <div class="info-content">
+                                <div class="info-label">Manager on Duty</div>
+                                <div class="info-value">${storeInfo.manager_on_duty.name}</div>
+                                <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.125rem;">
+                                    ${storeInfo.manager_on_duty.role} • ${storeInfo.manager_on_duty.contact_method}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${storeInfo.announcements && storeInfo.announcements.length > 0 ? 
+                        storeInfo.announcements.map(ann => `
+                            <div class="announcement-card">
+                                <div class="announcement-title">${ann.title}</div>
+                                <div class="announcement-text">${ann.message}</div>
+                            </div>
+                        `).join('') 
+                    : ''}
+                </div>
+            `;
+        }
+
+        function renderBottomNav() {
+            return `
+                <div class="bottom-nav">
+                    <div class="nav-item active">
+                        <div class="nav-icon">📅</div>
+                        <div>Schedule</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon">💬</div>
+                        <div>Messages</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon">📋</div>
+                        <div>Tasks</div>
+                    </div>
+                    <div class="nav-item">
+                        <div class="nav-icon">👤</div>
+                        <div>Profile</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Main Render
+        function render() {
+            const data = SCENARIOS[currentScenario];
+            const app = document.getElementById('app');
+            
+            app.innerHTML = `
+                ${renderHeader(data)}
+                <div class="app-content">
+                    ${renderTodayShift(data.today_shift)}
+                    ${renderPendingRequests(data.pending_requests)}
+                    ${renderUpcomingShifts(data.upcoming_shifts)}
+                    ${renderShiftActions()}
+                    ${renderStoreInfo(data.store_info_today)}
+                </div>
+                ${renderBottomNav()}
+            `;
+        }
+
+        // Event Handlers
+        function switchScenario(scenario) {
+            currentScenario = scenario;
+            render();
+        }
+
+        // Make functions global
+        window.switchScenario = switchScenario;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', render);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', render);
+        } else {
+            render();
+        }
+    </script>
+</body>
+</html>
