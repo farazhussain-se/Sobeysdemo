@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobeys Inventory Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F5F5F5;
+            color: #333333;
+            padding: 20px;
+            min-width: 1024px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #00A651;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .header-meta {
+            text-align: right;
+            color: #6B6B6B;
+            font-size: 14px;
+        }
+
+        .clear-filter-btn {
+            background-color: #00A651;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .clear-filter-btn:hover {
+            background-color: #008a43;
+        }
+
+        .clear-filter-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .chart-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333333;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .pie-chart {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .pie-chart svg {
+            transform: rotate(-90deg);
+        }
+
+        .pie-segment {
+            cursor: pointer;
+            transition: opacity 0.3s, transform 0.3s;
+            transform-origin: center;
+        }
+
+        .pie-segment:hover {
+            opacity: 0.8;
+            filter: brightness(1.1);
+        }
+
+        .pie-segment.active {
+            stroke: #333333;
+            stroke-width: 3;
+        }
+
+        .legend {
+            margin-top: 25px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .legend-item:hover {
+            background-color: #F5F5F5;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .legend-label {
+            flex: 1;
+            color: #333333;
+        }
+
+        .legend-value {
+            color: #6B6B6B;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .table-card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .table-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333333;
+        }
+
+        .table-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-input {
+            padding: 10px 40px 10px 15px;
+            border: 2px solid #E5E5E5;
+            border-radius: 5px;
+            font-size: 14px;
+            width: 250px;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #00A651;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6B6B6B;
+            pointer-events: none;
+        }
+
+        .filter-status {
+            color: #00A651;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #E5E5E5;
+            border-radius: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            background: #00A651;
+            z-index: 10;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        th:hover {
+            background-color: #008a43;
+        }
+
+        th.sortable::after {
+            content: ' ⇅';
+            opacity: 0.4;
+            font-size: 12px;
+        }
+
+        th.sort-asc::after {
+            content: ' ▲';
+            opacity: 1;
+        }
+
+        th.sort-desc::after {
+            content: ' ▼';
+            opacity: 1;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #E5E5E5;
+            transition: background-color 0.2s;
+            animation: slideIn 0.3s ease-out backwards;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #FAFAFA;
+        }
+
+        tbody tr:hover {
+            background-color: #E8F5E9;
+        }
+
+        td {
+            padding: 15px;
+            color: #333333;
+            font-size: 14px;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 13px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 1000;
+            white-space: nowrap;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+        }
+
+        /* Animation for pie segments */
+        @keyframes drawSegment {
+            from {
+                stroke-dashoffset: 1000;
+            }
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .pie-segment path {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: drawSegment 1s ease-out forwards;
+        }
+
+        /* Stagger animation delays */
+        .pie-segment:nth-child(1) path { animation-delay: 0s; }
+        .pie-segment:nth-child(2) path { animation-delay: 0.1s; }
+        .pie-segment:nth-child(3) path { animation-delay: 0.2s; }
+        .pie-segment:nth-child(4) path { animation-delay: 0.3s; }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #6B6B6B;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>Inventory Overview</h1>
+            </div>
+            <div class="header-meta">
+                <div style="font-weight: 600; color: #333333; font-size: 16px;">Current Report Date</div>
+                <div style="margin-top: 4px;">2024-02-06</div>
+                <button class="clear-filter-btn" id="clearFilterBtn" disabled>Clear Filter</button>
+            </div>
+        </div>
+
+        <div class="charts-container">
+            <div class="chart-card">
+                <h2 class="chart-title">Inventory by Category</h2>
+                <div class="chart-wrapper">
+                    <div class="pie-chart" id="pieChart1"></div>
+                    <div class="legend" id="legend1"></div>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h2 class="chart-title">Current Stock Distribution</h2>
+                <div class="chart-wrapper">
+                    <div class="pie-chart" id="pieChart2"></div>
+                    <div class="legend" id="legend2"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-header">
+                <h2 class="table-title">Current Inventory</h2>
+                <div class="table-controls">
+                    <div class="search-container">
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            class="search-input" 
+                            placeholder="Search products..."
+                        >
+                        <span class="search-icon">🔍</span>
+                    </div>
+                    <div class="filter-status" id="filterStatus"></div>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table id="inventoryTable">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-column="product">Product</th>
+                            <th class="sortable" data-column="upc">UPC</th>
+                            <th class="sortable" data-column="beginning">Beginning</th>
+                            <th class="sortable" data-column="current">Current</th>
+                            <th class="sortable" data-column="tag">Category</th>
+                            <th class="sortable" data-column="total">Total Value</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // Data
+        const inventoryData = [
+            {product: "Apples - Gala", upc: "123456789012", beginning: 100, current: 85, tag: "Produce", total: 500.00},
+            {product: "Bananas - Organic", upc: "234567890123", beginning: 150, current: 120, tag: "Produce", total: 300.00},
+            {product: "Bread - Whole Wheat", upc: "345678901234", beginning: 200, current: 180, tag: "Bakery", total: 450.00},
+            {product: "Milk - 2%", upc: "456789012345", beginning: 80, current: 65, tag: "Dairy", total: 780.00},
+            {product: "Cereal - Corn Flakes", upc: "567890123456", beginning: 300, current: 290, tag: "Dry Goods", total: 1200.00},
+            {product: "Cheese - Cheddar", upc: "678901234567", beginning: 120, current: 110, tag: "Dairy", total: 950.00},
+            {product: "Yogurt - Greek", upc: "789012345678", beginning: 250, current: 240, tag: "Dairy", total: 600.00},
+            {product: "Carrots - Baby", upc: "890123456789", beginning: 180, current: 165, tag: "Produce", total: 280.00},
+            {product: "Croissants", upc: "901234567890", beginning: 90, current: 75, tag: "Bakery", total: 320.00},
+            {product: "Rice - Basmati", upc: "012345678901", beginning: 400, current: 385, tag: "Dry Goods", total: 890.00},
+            {product: "Butter - Salted", upc: "112345678902", beginning: 95, current: 88, tag: "Dairy", total: 440.00},
+            {product: "Tomatoes - Roma", upc: "212345678903", beginning: 140, current: 125, tag: "Produce", total: 375.00},
+            {product: "Baguettes", upc: "312345678904", beginning: 110, current: 95, tag: "Bakery", total: 285.00},
+            {product: "Pasta - Penne", upc: "412345678905", beginning: 350, current: 340, tag: "Dry Goods", total: 680.00}
+        ];
+
+        const categoryColors = {
+            "Produce": "#00A651",
+            "Bakery": "#FF9800",
+            "Dairy": "#2196F3",
+            "Dry Goods": "#9C27B0"
+        };
+
+        let currentFilter = null;
+        let sortColumn = null;
+        let sortDirection = 'asc';
+        let searchTerm = '';
+
+        // Calculate pie chart data
+        function calculatePieData(data, field) {
+            const totals = {};
+            data.forEach(item => {
+                const value = field === 'beginning' ? item.beginning : item.current;
+                totals[item.tag] = (totals[item.tag] || 0) + value;
+            });
+            
+            const total = Object.values(totals).reduce((a, b) => a + b, 0);
+            return Object.entries(totals).map(([tag, value]) => ({
+                tag,
+                value,
+                percentage: (value / total * 100).toFixed(1)
+            }));
+        }
+
+        // Create SVG donut chart
+        function createDonutChart(containerId, data, clickHandler) {
+            const container = document.getElementById(containerId);
+            const size = 300;
+            const radius = 120;
+            const innerRadius = 75;
+            const centerX = size / 2;
+            const centerY = size / 2;
+
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', size);
+            svg.setAttribute('height', size);
+            svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+
+            let currentAngle = 0;
+
+            data.forEach((item, index) => {
+                const angle = (item.percentage / 100) * 360;
+                const endAngle = currentAngle + angle;
+
+                const path = createDonutSegment(centerX, centerY, radius, innerRadius, currentAngle, endAngle);
+                
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.classList.add('pie-segment');
+                g.setAttribute('data-tag', item.tag);
+                
+                const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                pathElement.setAttribute('d', path);
+                pathElement.setAttribute('fill', categoryColors[item.tag]);
+                
+                g.appendChild(pathElement);
+                svg.appendChild(g);
+
+                // Event listeners
+                g.addEventListener('mouseenter', (e) => showTooltip(e, item));
+                g.addEventListener('mousemove', (e) => moveTooltip(e));
+                g.addEventListener('mouseleave', hideTooltip);
+                g.addEventListener('click', () => clickHandler(item.tag));
+
+                currentAngle = endAngle;
+            });
+
+            container.innerHTML = '';
+            container.appendChild(svg);
+        }
+
+        function createDonutSegment(cx, cy, radius, innerRadius, startAngle, endAngle) {
+            const start = polarToCartesian(cx, cy, radius, startAngle);
+            const end = polarToCartesian(cx, cy, radius, endAngle);
+            const innerStart = polarToCartesian(cx, cy, innerRadius, startAngle);
+            const innerEnd = polarToCartesian(cx, cy, innerRadius, endAngle);
+
+            const largeArc = endAngle - startAngle > 180 ? 1 : 0;
+
+            return [
+                `M ${start.x} ${start.y}`,
+                `A ${radius} ${radius} 0 ${largeArc} 1 ${end.x} ${end.y}`,
+                `L ${innerEnd.x} ${innerEnd.y}`,
+                `A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${innerStart.x} ${innerStart.y}`,
+                'Z'
+            ].join(' ');
+        }
+
+        function polarToCartesian(cx, cy, radius, angleInDegrees) {
+            const angleInRadians = (angleInDegrees * Math.PI) / 180.0;
+            return {
+                x: cx + (radius * Math.cos(angleInRadians)),
+                y: cy + (radius * Math.sin(angleInRadians))
+            };
+        }
+
+        // Create legend
+        function createLegend(containerId, data, clickHandler) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            data.forEach(item => {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                legendItem.innerHTML = `
+                    <div class="legend-color" style="background-color: ${categoryColors[item.tag]}"></div>
+                    <span class="legend-label">${item.tag}</span>
+                    <span class="legend-value">${item.percentage}%</span>
+                `;
+                legendItem.addEventListener('click', () => clickHandler(item.tag));
+                container.appendChild(legendItem);
+            });
+        }
+
+        // Tooltip functions
+        function showTooltip(e, item) {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.innerHTML = `
+                <strong>${item.tag}</strong><br>
+                ${item.percentage}% (${item.value.toLocaleString()} units)
+            `;
+            tooltip.classList.add('show');
+            moveTooltip(e);
+        }
+
+        function moveTooltip(e) {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.style.left = (e.pageX + 15) + 'px';
+            tooltip.style.top = (e.pageY - 10) + 'px';
+        }
+
+        function hideTooltip() {
+            document.getElementById('tooltip').classList.remove('show');
+        }
+
+        // Filter functionality
+        function filterByCategory(category) {
+            if (currentFilter === category) {
+                currentFilter = null;
+            } else {
+                currentFilter = category;
+            }
+            updateTable();
+            updateClearButton();
+            updateFilterStatus();
+            updateActiveSegments();
+        }
+
+        function clearFilter() {
+            currentFilter = null;
+            searchTerm = '';
+            document.getElementById('searchInput').value = '';
+            updateTable();
+            updateClearButton();
+            updateFilterStatus();
+            updateActiveSegments();
+        }
+
+        function updateClearButton() {
+            const btn = document.getElementById('clearFilterBtn');
+            btn.disabled = !currentFilter && !searchTerm;
+        }
+
+        function updateFilterStatus() {
+            const status = document.getElementById('filterStatus');
+            const filters = [];
+            
+            if (currentFilter) {
+                filters.push(`Category: ${currentFilter}`);
+            }
+            if (searchTerm) {
+                filters.push(`Search: "${searchTerm}"`);
+            }
+            
+            status.textContent = filters.length > 0 ? `Filtered by ${filters.join(' | ')}` : '';
+        }
+
+        function updateActiveSegments() {
+            document.querySelectorAll('.pie-segment').forEach(segment => {
+                const tag = segment.getAttribute('data-tag');
+                if (currentFilter && tag === currentFilter) {
+                    segment.classList.add('active');
+                } else {
+                    segment.classList.remove('active');
+                }
+            });
+        }
+
+        // Table functions
+        function updateTable() {
+            const tbody = document.getElementById('tableBody');
+            let data = inventoryData;
+
+            // Apply category filter
+            if (currentFilter) {
+                data = data.filter(item => item.tag === currentFilter);
+            }
+
+            // Apply search filter
+            if (searchTerm) {
+                data = data.filter(item => 
+                    item.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    item.upc.includes(searchTerm) ||
+                    item.tag.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            }
+
+            // Apply sorting
+            if (sortColumn) {
+                data = [...data].sort((a, b) => {
+                    let aVal = a[sortColumn];
+                    let bVal = b[sortColumn];
+
+                    if (typeof aVal === 'string') {
+                        aVal = aVal.toLowerCase();
+                        bVal = bVal.toLowerCase();
+                    }
+
+                    if (sortDirection === 'asc') {
+                        return aVal > bVal ? 1 : -1;
+                    } else {
+                        return aVal < bVal ? 1 : -1;
+                    }
+                });
+            }
+
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="no-data">No items match the current filter</td></tr>';
+                return;
+            }
+
+            data.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.style.animationDelay = `${index * 0.05}s`;
+                row.innerHTML = `
+                    <td>${item.product}</td>
+                    <td>${item.upc}</td>
+                    <td>${item.beginning.toLocaleString()}</td>
+                    <td>${item.current.toLocaleString()}</td>
+                    <td><span style="color: ${categoryColors[item.tag]}; font-weight: 600;">${item.tag}</span></td>
+                    <td>$${item.total.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Sorting functionality
+        function setupTableSorting() {
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.addEventListener('click', () => {
+                    const column = th.getAttribute('data-column');
+                    
+                    if (sortColumn === column) {
+                        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        sortColumn = column;
+                        sortDirection = 'asc';
+                    }
+
+                    // Update header styles
+                    document.querySelectorAll('th').forEach(header => {
+                        header.classList.remove('sort-asc', 'sort-desc');
+                    });
+                    th.classList.add(sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+
+                    updateTable();
+                });
+            });
+        }
+
+        // Initialize
+        function init() {
+            const pieData1 = calculatePieData(inventoryData, 'beginning');
+            const pieData2 = calculatePieData(inventoryData, 'current');
+
+            createDonutChart('pieChart1', pieData1, filterByCategory);
+            createLegend('legend1', pieData1, filterByCategory);
+
+            createDonutChart('pieChart2', pieData2, filterByCategory);
+            createLegend('legend2', pieData2, filterByCategory);
+
+            setupTableSorting();
+            updateTable();
+
+            document.getElementById('clearFilterBtn').addEventListener('click', clearFilter);
+            
+            // Search input listener with debounce
+            const searchInput = document.getElementById('searchInput');
+            let searchTimeout;
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    searchTerm = e.target.value;
+                    updateTable();
+                    updateClearButton();
+                    updateFilterStatus();
+                }, 300);
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>
