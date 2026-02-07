@@ -15,68 +15,121 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background-color: #F5F5F5;
             color: #333333;
-            min-height: 100vh;
-            min-width: 1024px;
+            margin: 0;
+            padding: 0;
         }
 
         .dashboard-container {
-            min-height: 100vh;
+            width: 100%;
+            max-width: 100%;
         }
 
         /* Main Content */
         .main-content {
-            padding: 30px;
-            max-width: 1600px;
-            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
         }
 
         .dashboard-header {
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .dashboard-title {
-            font-size: 32px;
+            font-size: clamp(24px, 4vw, 32px);
             font-weight: 700;
             color: #333333;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .dashboard-meta {
             color: #6B6B6B;
-            font-size: 14px;
+            font-size: clamp(12px, 1.5vw, 14px);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .dashboard-meta span:not(:last-child)::after {
+            content: '|';
+            margin-left: 8px;
+            color: #E5E5E5;
         }
 
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 25px;
-            margin-bottom: 25px;
+            gap: 15px;
+            margin-bottom: 15px;
         }
 
         .dashboard-grid.three-col {
             grid-template-columns: 2fr 1fr 1fr;
         }
 
+        @media (max-width: 1200px) {
+            .dashboard-grid.three-col {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .dashboard-grid.three-col > div:first-child {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid,
+            .dashboard-grid.three-col {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-grid.three-col > div:first-child {
+                grid-column: 1;
+            }
+
+            .basket-chart {
+                grid-template-columns: 1fr;
+            }
+
+            .donut-container {
+                flex-direction: column;
+            }
+        }
+
         .card {
             background: white;
             border-radius: 12px;
-            padding: 25px;
+            padding: clamp(15px, 3vw, 25px);
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             transition: box-shadow 0.3s;
         }
 
         .card.compact {
-            padding: 20px;
+            padding: clamp(12px, 2.5vw, 20px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card.compact > * {
+            flex-shrink: 0;
         }
 
         .card:hover {
             box-shadow: 0 4px 12px rgba(0,0,0,0.12);
         }
 
+        /* Section Divider */
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, #E5E5E5 20%, #E5E5E5 80%, transparent 100%);
+            margin: clamp(12px, 2vw, 18px) 0;
+        }
+
         /* Sales Summary Widget */
         .sales-summary {
-            margin-top: 20px;
-            padding: 20px;
+            margin-top: 15px;
+            padding: clamp(12px, 2.5vw, 20px);
             background: #FAFAFA;
             border-radius: 10px;
             border: 1px solid #E5E5E5;
@@ -86,38 +139,41 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
         .sales-summary-left h3 {
-            font-size: 12px;
+            font-size: clamp(10px, 1.2vw, 12px);
             font-weight: 600;
             color: #6B6B6B;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .sales-summary-amount {
-            font-size: 32px;
+            font-size: clamp(24px, 4vw, 32px);
             font-weight: 700;
             color: #333333;
             line-height: 1;
         }
 
         .sales-summary-target {
-            font-size: 13px;
+            font-size: clamp(11px, 1.3vw, 13px);
             color: #6B6B6B;
-            margin-top: 6px;
+            margin-top: 4px;
         }
 
         .sales-summary-badge {
-            padding: 6px 14px;
+            padding: 5px 12px;
             border-radius: 20px;
-            font-size: 11px;
+            font-size: clamp(9px, 1.1vw, 11px);
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            white-space: nowrap;
         }
 
         .sales-summary-badge.on-track {
@@ -131,7 +187,7 @@
         }
 
         .sales-summary-variance {
-            font-size: 16px;
+            font-size: clamp(14px, 2vw, 16px);
             font-weight: 700;
             margin-top: 4px;
         }
@@ -147,12 +203,18 @@
         .sales-progress-cards {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: clamp(10px, 1.5vw, 15px);
+        }
+
+        @media (max-width: 480px) {
+            .sales-progress-cards {
+                grid-template-columns: 1fr;
+            }
         }
 
         .progress-card {
             background: white;
-            padding: 20px;
+            padding: clamp(12px, 2vw, 20px);
             border-radius: 8px;
             text-align: center;
             border: 1px solid #E5E5E5;
@@ -165,23 +227,25 @@
         }
 
         .progress-card-title {
-            font-size: 11px;
+            font-size: clamp(9px, 1.1vw, 11px);
             font-weight: 600;
             color: #6B6B6B;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .progress-ring-container {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 10px;
+            width: clamp(70px, 12vw, 100px);
+            height: clamp(70px, 12vw, 100px);
+            margin: 0 auto 8px;
             position: relative;
         }
 
         .progress-ring {
             transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
         }
 
         .progress-ring-circle {
@@ -198,7 +262,7 @@
         }
 
         .progress-ring-percentage {
-            font-size: 22px;
+            font-size: clamp(18px, 3vw, 22px);
             font-weight: 700;
             color: #00A651;
             display: block;
@@ -206,7 +270,7 @@
         }
 
         .progress-ring-label {
-            font-size: 10px;
+            font-size: clamp(8px, 1vw, 10px);
             color: #6B6B6B;
             display: block;
             margin-top: 2px;
@@ -216,17 +280,19 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: clamp(12px, 2vw, 20px);
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .card-title {
-            font-size: 18px;
+            font-size: clamp(16px, 2vw, 18px);
             font-weight: 700;
             color: #333333;
         }
 
         .card-subtitle {
-            font-size: 12px;
+            font-size: clamp(11px, 1.2vw, 12px);
             color: #6B6B6B;
             margin-top: 4px;
         }
@@ -258,12 +324,12 @@
 
         /* Bar Chart */
         .bar-chart {
-            height: 280px;
+            height: clamp(200px, 30vw, 280px);
             position: relative;
             display: flex;
             align-items: flex-end;
             justify-content: space-around;
-            padding: 20px 0;
+            padding: 15px 0;
             border-bottom: 2px solid #E5E5E5;
         }
 
@@ -273,19 +339,20 @@
             align-items: center;
             flex: 1;
             max-width: 80px;
+            min-width: 40px;
         }
 
         .bars-wrapper {
             display: flex;
-            gap: 4px;
+            gap: 2px;
             width: 100%;
-            height: 220px;
+            height: clamp(150px, 25vw, 220px);
             align-items: flex-end;
             justify-content: center;
         }
 
         .bar {
-            width: 28px;
+            width: clamp(18px, 3vw, 28px);
             background: linear-gradient(180deg, #00A651 0%, #00d66a 100%);
             border-radius: 4px 4px 0 0;
             transition: all 0.3s;
@@ -332,41 +399,43 @@
         }
 
         .bar-label {
-            margin-top: 10px;
-            font-size: 12px;
+            margin-top: 8px;
+            font-size: clamp(10px, 1.2vw, 12px);
             color: #6B6B6B;
             font-weight: 500;
         }
 
         .chart-legend {
             display: flex;
-            gap: 20px;
+            gap: clamp(10px, 2vw, 20px);
             justify-content: center;
-            margin-top: 15px;
-            padding-top: 15px;
+            margin-top: 12px;
+            padding-top: 12px;
             border-top: 1px solid #E5E5E5;
+            flex-wrap: wrap;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 13px;
+            gap: 6px;
+            font-size: clamp(11px, 1.3vw, 13px);
             color: #6B6B6B;
         }
 
         .legend-color {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             border-radius: 3px;
+            flex-shrink: 0;
         }
 
         /* Basket Metrics Chart */
         .basket-chart {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            padding: 10px 0;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(8px, 1.5vw, 15px);
+            padding: 5px 0;
         }
 
         .basket-metric {
@@ -374,19 +443,19 @@
         }
 
         .basket-metric-name {
-            font-size: 12px;
+            font-size: clamp(8px, 0.95vw, 10px);
             font-weight: 600;
             color: #6B6B6B;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 15px;
+            letter-spacing: 0.3px;
+            margin-bottom: 8px;
         }
 
         .gauge-container {
             position: relative;
             width: 100%;
-            max-width: 200px;
-            margin: 0 auto 10px;
+            max-width: clamp(90px, 16vw, 130px);
+            margin: 0 auto 5px;
         }
 
         .gauge-svg {
@@ -396,25 +465,31 @@
 
         .gauge-value-display {
             text-align: center;
-            margin-top: 5px;
+            margin-top: 3px;
         }
 
         .gauge-current-value {
-            font-size: 24px;
+            font-size: clamp(16px, 2.5vw, 20px);
             font-weight: 700;
             color: #00A651;
             display: block;
+            line-height: 1;
         }
 
         .gauge-target-value {
-            font-size: 11px;
+            font-size: clamp(8px, 1vw, 10px);
             color: #6B6B6B;
             display: block;
             margin-top: 2px;
         }
 
         .gauge-status {
-            margin-top: 8px;
+            margin-top: 5px;
+        }
+
+        .gauge-status .status-badge {
+            padding: 3px 8px;
+            font-size: clamp(7px, 0.95vw, 9px);
         }
 
         /* Status Indicator */
@@ -441,6 +516,21 @@
         .data-table {
             width: 100%;
             border-collapse: collapse;
+            font-size: clamp(12px, 1.5vw, 14px);
+        }
+
+        .data-table.compact-table {
+            font-size: clamp(10px, 1.3vw, 12px);
+        }
+
+        .data-table.compact-table th,
+        .data-table.compact-table td {
+            padding: clamp(6px, 1.2vw, 10px) clamp(8px, 1.5vw, 12px);
+        }
+
+        .data-table.compact-table .status-badge {
+            padding: 3px 8px;
+            font-size: clamp(8px, 1vw, 10px);
         }
 
         .data-table thead {
@@ -448,9 +538,9 @@
         }
 
         .data-table th {
-            padding: 12px 15px;
+            padding: clamp(8px, 1.5vw, 12px) clamp(10px, 2vw, 15px);
             text-align: left;
-            font-size: 12px;
+            font-size: clamp(10px, 1.2vw, 12px);
             font-weight: 700;
             color: #6B6B6B;
             text-transform: uppercase;
@@ -491,13 +581,24 @@
         }
 
         .data-table td {
-            padding: 15px;
-            font-size: 14px;
+            padding: clamp(10px, 2vw, 15px);
+            font-size: clamp(12px, 1.5vw, 14px);
             color: #333333;
         }
 
         .data-table td:first-child {
             font-weight: 600;
+        }
+
+        @media (max-width: 600px) {
+            .data-table {
+                font-size: 11px;
+            }
+            
+            .data-table th,
+            .data-table td {
+                padding: 8px 6px;
+            }
         }
 
         .value-positive {
@@ -513,15 +614,15 @@
         /* Donut Chart */
         .donut-container {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 20px;
+            justify-content: space-between;
+            gap: clamp(15px, 2.5vw, 25px);
         }
 
         .donut-chart-wrapper {
             position: relative;
-            width: 180px;
-            height: 180px;
+            width: clamp(140px, 22vw, 200px);
+            height: clamp(140px, 22vw, 200px);
             flex-shrink: 0;
         }
 
@@ -539,14 +640,14 @@
         }
 
         .donut-center-value {
-            font-size: 32px;
+            font-size: clamp(28px, 4.5vw, 40px);
             font-weight: 700;
             color: #00A651;
             line-height: 1;
         }
 
         .donut-center-label {
-            font-size: 11px;
+            font-size: clamp(10px, 1.3vw, 12px);
             color: #6B6B6B;
             margin-top: 4px;
             text-transform: uppercase;
@@ -554,16 +655,19 @@
         }
 
         .donut-legend {
-            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .donut-legend-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 12px;
+            padding: clamp(8px, 1.5vw, 12px) clamp(10px, 2vw, 15px);
             border-radius: 6px;
-            margin-bottom: 6px;
+            margin-bottom: clamp(5px, 1vw, 8px);
             cursor: pointer;
             transition: all 0.2s;
         }
@@ -582,16 +686,17 @@
             width: 12px;
             height: 12px;
             border-radius: 2px;
+            flex-shrink: 0;
         }
 
         .donut-legend-name {
-            font-size: 13px;
+            font-size: clamp(11px, 1.4vw, 13px);
             font-weight: 600;
             color: #333333;
         }
 
         .donut-legend-value {
-            font-size: 15px;
+            font-size: clamp(14px, 1.8vw, 16px);
             font-weight: 700;
             color: #333333;
         }
@@ -630,13 +735,6 @@
         .data-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
         .data-table tbody tr:nth-child(2) { animation-delay: 0.2s; }
         .data-table tbody tr:nth-child(3) { animation-delay: 0.3s; }
-
-        /* Responsive adjustments */
-        @media (max-width: 1400px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-        }
     </style>
 </head>
 <body>
@@ -647,9 +745,7 @@
                 <h1 class="dashboard-title">Sales Overview</h1>
                 <div class="dashboard-meta">
                     <span>Store #1234 - Toronto Downtown</span>
-                    <span style="margin: 0 10px; color: #E5E5E5;">|</span>
                     <span>Today: February 6, 2026</span>
-                    <span style="margin: 0 10px; color: #E5E5E5;">|</span>
                     <span>Last updated: 2:45 PM</span>
                 </div>
             </div>
@@ -726,20 +822,40 @@
                     </div>
                 </div>
 
-                <!-- Basket Analysis -->
+                <!-- Sales Status Table -->
                 <div class="card compact">
                     <div class="card-header">
+                        <div>
+                            <div class="card-title">Sales Status</div>
+                            <div class="card-subtitle">Performance tracking</div>
+                        </div>
+                    </div>
+                    <table class="data-table compact-table" id="salesTable">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-column="period">Period</th>
+                                <th class="sortable" data-column="onTarget">On Target</th>
+                                <th class="sortable" data-column="notTarget">Not on Target</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesTableBody"></tbody>
+                    </table>
+                </div>
+
+                <!-- Combined: Basket Analysis + Inventory Health -->
+                <div class="card compact">
+                    <div class="card-header" style="margin-bottom: 10px;">
                         <div>
                             <div class="card-title">Basket Analysis</div>
                             <div class="card-subtitle">Key transaction metrics</div>
                         </div>
                     </div>
                     <div class="basket-chart" id="basketChart"></div>
-                </div>
-
-                <!-- Inventory Health -->
-                <div class="card compact">
-                    <div class="card-header">
+                    
+                    <div class="section-divider"></div>
+                    
+                    <div class="card-header" style="margin-top: 8px; margin-bottom: 10px;">
                         <div>
                             <div class="card-title">Inventory Health</div>
                             <div class="card-subtitle">Stock status distribution</div>
@@ -755,30 +871,6 @@
                         </div>
                         <div class="donut-legend" id="donutLegend"></div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Bottom Row: Table -->
-            <div class="dashboard-grid">
-                <!-- Sales Status Table -->
-                <div class="card">
-                    <div class="card-header">
-                        <div>
-                            <div class="card-title">Sales Status</div>
-                            <div class="card-subtitle">Performance tracking</div>
-                        </div>
-                    </div>
-                    <table class="data-table" id="salesTable">
-                        <thead>
-                            <tr>
-                                <th class="sortable" data-column="period">Period</th>
-                                <th class="sortable" data-column="onTarget">On Target</th>
-                                <th class="sortable" data-column="notTarget">Not on Target</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="salesTableBody"></tbody>
-                    </table>
                 </div>
             </div>
         </div>
