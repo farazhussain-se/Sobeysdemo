@@ -60,32 +60,25 @@
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 12px;
+            margin-bottom: 12px;
         }
 
-        .dashboard-grid.three-col {
-            grid-template-columns: 2fr 1fr 1fr;
+        .dashboard-grid.two-col {
+            grid-template-columns: 1fr 1fr;
         }
 
         @media (max-width: 1200px) {
-            .dashboard-grid.three-col {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .dashboard-grid.three-col > div:first-child {
-                grid-column: 1 / -1;
+            .dashboard-grid,
+            .dashboard-grid.two-col {
+                grid-template-columns: 1fr;
             }
         }
 
         @media (max-width: 768px) {
             .dashboard-grid,
-            .dashboard-grid.three-col {
+            .dashboard-grid.two-col {
                 grid-template-columns: 1fr;
-            }
-            
-            .dashboard-grid.three-col > div:first-child {
-                grid-column: 1;
             }
 
             .basket-chart {
@@ -324,13 +317,28 @@
 
         /* Bar Chart */
         .bar-chart {
-            height: clamp(200px, 30vw, 280px);
+            height: clamp(180px, 25vw, 260px);
             position: relative;
             display: flex;
             align-items: flex-end;
-            justify-content: space-around;
-            padding: 15px 0;
+            padding: 10px 0 10px 40px;
             border-bottom: 2px solid #E5E5E5;
+            border-left: 2px solid #E5E5E5;
+        }
+
+        .bar-chart-y-axis {
+            position: absolute;
+            left: 0;
+            top: 10px;
+            bottom: 30px;
+            width: 35px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-size: clamp(9px, 1vw, 11px);
+            color: #6B6B6B;
+            padding-right: 5px;
+            text-align: right;
         }
 
         .bar-group {
@@ -338,21 +346,21 @@
             flex-direction: column;
             align-items: center;
             flex: 1;
-            max-width: 80px;
-            min-width: 40px;
+            max-width: 60px;
+            min-width: 35px;
         }
 
         .bars-wrapper {
             display: flex;
-            gap: 2px;
+            gap: 3px;
             width: 100%;
-            height: clamp(150px, 25vw, 220px);
+            height: clamp(140px, 20vw, 210px);
             align-items: flex-end;
             justify-content: center;
         }
 
         .bar {
-            width: clamp(18px, 3vw, 28px);
+            width: clamp(22px, 3.5vw, 32px);
             background: linear-gradient(180deg, #00A651 0%, #00d66a 100%);
             border-radius: 4px 4px 0 0;
             transition: all 0.3s;
@@ -432,64 +440,106 @@
 
         /* Basket Metrics Chart */
         .basket-chart {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: clamp(8px, 1.5vw, 15px);
-            padding: 5px 0;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(12px, 2vw, 18px);
+            padding: 10px 0;
         }
 
         .basket-metric {
-            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .basket-metric-label {
+            flex: 0 0 clamp(100px, 18vw, 140px);
+            text-align: right;
         }
 
         .basket-metric-name {
-            font-size: clamp(8px, 0.95vw, 10px);
+            font-size: clamp(10px, 1.2vw, 12px);
             font-weight: 600;
-            color: #6B6B6B;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin-bottom: 8px;
-        }
-
-        .gauge-container {
-            position: relative;
-            width: 100%;
-            max-width: clamp(90px, 16vw, 130px);
-            margin: 0 auto 5px;
-        }
-
-        .gauge-svg {
-            width: 100%;
-            height: auto;
-        }
-
-        .gauge-value-display {
-            text-align: center;
-            margin-top: 3px;
-        }
-
-        .gauge-current-value {
-            font-size: clamp(16px, 2.5vw, 20px);
-            font-weight: 700;
-            color: #00A651;
+            color: #333333;
             display: block;
-            line-height: 1;
+            margin-bottom: 2px;
         }
 
-        .gauge-target-value {
+        .basket-metric-target {
             font-size: clamp(8px, 1vw, 10px);
             color: #6B6B6B;
-            display: block;
+        }
+
+        .basket-bar-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .basket-bar-wrapper {
+            position: relative;
+            height: clamp(28px, 4vw, 36px);
+            background: #F5F5F5;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .basket-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00A651 0%, #00d66a 100%);
+            border-radius: 6px;
+            transition: width 0.8s ease-out;
+            display: flex;
+            align-items: center;
+            padding-left: 12px;
+            position: relative;
+            animation: growBarWidth 1s ease-out;
+        }
+
+        @keyframes growBarWidth {
+            from { width: 0 !important; }
+        }
+
+        .basket-bar-value {
+            font-size: clamp(13px, 1.6vw, 16px);
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .basket-bar-target-line {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #333333;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .basket-bar-target-line::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 4px solid #333333;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+        }
+
+        .basket-status-badge {
+            font-size: clamp(8px, 1vw, 10px);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            display: inline-block;
             margin-top: 2px;
-        }
-
-        .gauge-status {
-            margin-top: 5px;
-        }
-
-        .gauge-status .status-badge {
-            padding: 3px 8px;
-            font-size: clamp(7px, 0.95vw, 9px);
         }
 
         /* Status Indicator */
@@ -750,8 +800,8 @@
                 </div>
             </div>
 
-            <!-- Top Row: Charts -->
-            <div class="dashboard-grid three-col">
+            <!-- Top Row: Sales Chart and Basket Analysis -->
+            <div class="dashboard-grid two-col">
                 <!-- Sales Volume by Hour -->
                 <div class="card">
                     <div class="card-header">
@@ -775,62 +825,31 @@
                             <span>Yesterday</span>
                         </div>
                     </div>
-
-                    <!-- Sales Summary Widget -->
-                    <div class="sales-summary">
-                        <div class="sales-summary-header">
-                            <div class="sales-summary-left">
-                                <h3>Today's Sales</h3>
-                                <div class="sales-summary-amount" id="todaysSalesAmount">$38,072</div>
-                                <div class="sales-summary-target">Target: $42,000</div>
-                            </div>
-                            <div>
-                                <div class="sales-summary-badge on-track">ON TRACK</div>
-                                <div class="sales-summary-variance negative" id="salesVariance">-9.3%</div>
-                            </div>
-                        </div>
-                        <div class="sales-progress-cards">
-                            <div class="progress-card">
-                                <div class="progress-card-title">Today's Progress</div>
-                                <div class="progress-ring-container">
-                                    <svg class="progress-ring" width="100" height="100">
-                                        <circle cx="50" cy="50" r="40" stroke="#E5E5E5" stroke-width="8" fill="none"/>
-                                        <circle id="todayProgressCircle" cx="50" cy="50" r="40" stroke="#00A651" stroke-width="8" fill="none"
-                                                stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round"/>
-                                    </svg>
-                                    <div class="progress-ring-text">
-                                        <span class="progress-ring-percentage" id="todayProgressPercent">91%</span>
-                                        <span class="progress-ring-label">of target</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="progress-card">
-                                <div class="progress-card-title">Week Progress</div>
-                                <div class="progress-ring-container">
-                                    <svg class="progress-ring" width="100" height="100">
-                                        <circle cx="50" cy="50" r="40" stroke="#E5E5E5" stroke-width="8" fill="none"/>
-                                        <circle id="weekProgressCircle" cx="50" cy="50" r="40" stroke="#00A651" stroke-width="8" fill="none"
-                                                stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round"/>
-                                    </svg>
-                                    <div class="progress-ring-text">
-                                        <span class="progress-ring-percentage" id="weekProgressPercent">94%</span>
-                                        <span class="progress-ring-label">of target</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
+                <!-- Basket Analysis -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Basket Analysis</div>
+                            <div class="card-subtitle">Key transaction metrics</div>
+                        </div>
+                    </div>
+                    <div class="basket-chart" id="basketChart"></div>
+                </div>
+            </div>
+
+            <!-- Bottom Row: Sales Status and Inventory Health -->
+            <div class="dashboard-grid two-col">
                 <!-- Sales Status Table -->
-                <div class="card compact">
+                <div class="card">
                     <div class="card-header">
                         <div>
                             <div class="card-title">Sales Status</div>
                             <div class="card-subtitle">Performance tracking</div>
                         </div>
                     </div>
-                    <table class="data-table compact-table" id="salesTable">
+                    <table class="data-table" id="salesTable">
                         <thead>
                             <tr>
                                 <th class="sortable" data-column="period">Period</th>
@@ -843,19 +862,9 @@
                     </table>
                 </div>
 
-                <!-- Combined: Basket Analysis + Inventory Health -->
-                <div class="card compact">
-                    <div class="card-header" style="margin-bottom: 10px;">
-                        <div>
-                            <div class="card-title">Basket Analysis</div>
-                            <div class="card-subtitle">Key transaction metrics</div>
-                        </div>
-                    </div>
-                    <div class="basket-chart" id="basketChart"></div>
-                    
-                    <div class="section-divider"></div>
-                    
-                    <div class="card-header" style="margin-top: 8px; margin-bottom: 10px;">
+                <!-- Inventory Health -->
+                <div class="card">
+                    <div class="card-header">
                         <div>
                             <div class="card-title">Inventory Health</div>
                             <div class="card-subtitle">Stock status distribution</div>
@@ -914,6 +923,21 @@
             const container = document.getElementById('salesChart');
             const maxValue = Math.max(...salesByHour.flatMap(d => [d.today, d.yesterday]));
 
+            // Create Y-axis
+            const yAxis = document.createElement('div');
+            yAxis.className = 'bar-chart-y-axis';
+            const yAxisValues = [
+                Math.round(maxValue / 1000) + 'k',
+                Math.round(maxValue / 2000) + 'k',
+                '0'
+            ];
+            yAxisValues.forEach(value => {
+                const label = document.createElement('div');
+                label.textContent = '$' + value;
+                yAxis.appendChild(label);
+            });
+            container.appendChild(yAxis);
+
             salesByHour.forEach((data, index) => {
                 const barGroup = document.createElement('div');
                 barGroup.className = 'bar-group';
@@ -947,52 +971,9 @@
                 barGroup.appendChild(label);
                 container.appendChild(barGroup);
             });
-
-            // Calculate and update sales summary
-            updateSalesSummary();
         }
 
-        function updateSalesSummary() {
-            // Calculate today's total sales
-            const todayTotal = salesByHour.reduce((sum, data) => sum + data.today, 0);
-            const target = 42000;
-            const todayPercentage = (todayTotal / target * 100);
-            
-            // Calculate week progress (assume 6 days of data)
-            const weekTarget = 290000;
-            const weekTotal = 272600; // Conservative estimate
-            const weekPercentage = (weekTotal / weekTarget * 100);
-            
-            // Update display values
-            document.getElementById('todaysSalesAmount').textContent = `$${todayTotal.toLocaleString()}`;
-            
-            const variance = ((todayTotal - target) / target * 100).toFixed(1);
-            const varianceElement = document.getElementById('salesVariance');
-            varianceElement.textContent = `${variance >= 0 ? '+' : ''}${variance}%`;
-            varianceElement.className = `sales-summary-variance ${variance >= 0 ? 'positive' : 'negative'}`;
-            
-            // Animate progress rings
-            setTimeout(() => {
-                animateProgressRing('todayProgressCircle', 'todayProgressPercent', todayPercentage);
-                animateProgressRing('weekProgressCircle', 'weekProgressPercent', weekPercentage);
-            }, 500);
-        }
-
-        function animateProgressRing(circleId, textId, percentage) {
-            const circle = document.getElementById(circleId);
-            const text = document.getElementById(textId);
-            const radius = 40;
-            const circumference = 2 * Math.PI * radius;
-            
-            // Clamp percentage to 0-100
-            const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
-            const offset = circumference - (clampedPercentage / 100 * circumference);
-            
-            circle.style.strokeDashoffset = offset;
-            text.textContent = Math.round(clampedPercentage) + '%';
-        }
-
-        // Basket Analysis Chart with Gauges
+        // Basket Analysis Chart with Horizontal Bars
         function createBasketChart() {
             const container = document.getElementById('basketChart');
 
@@ -1004,110 +985,30 @@
 
                 const percentage = (metric.value / metric.target) * 100;
                 const isOverTarget = percentage >= 100;
-                
-                // Create gauge
-                const gaugeId = `gauge-${index}`;
-                
+                const targetPosition = 100; // Target line at 100%
+                const barWidth = Math.min(percentage, 150); // Cap at 150% for display
+
                 metricDiv.innerHTML = `
-                    <div class="basket-metric-name">${metric.category}</div>
-                    <div class="gauge-container">
-                        <svg class="gauge-svg" id="${gaugeId}" viewBox="0 0 200 120"></svg>
+                    <div class="basket-metric-label">
+                        <span class="basket-metric-name">${metric.category}</span>
+                        <span class="basket-metric-target">Target: ${metric.unit}${metric.target.toFixed(metric.unit === '$' ? 2 : 1)}</span>
                     </div>
-                    <div class="gauge-value-display">
-                        <span class="gauge-current-value">${metric.unit}${metric.value.toFixed(metric.unit === '$' ? 2 : 1)}</span>
-                        <span class="gauge-target-value">TARGET: ${metric.unit}${metric.target.toFixed(metric.unit === '$' ? 2 : 1)}</span>
-                    </div>
-                    <div class="gauge-status">
-                        <span class="status-badge ${isOverTarget ? 'success' : 'warning'}">
+                    <div class="basket-bar-container">
+                        <div class="basket-bar-wrapper">
+                            <div class="basket-bar" style="width: ${barWidth}%">
+                                <span class="basket-bar-value">${metric.unit}${metric.value.toFixed(metric.unit === '$' ? 2 : 1)}</span>
+                            </div>
+                            <div class="basket-bar-target-line" style="left: ${targetPosition}%"></div>
+                        </div>
+                        <span class="basket-status-badge ${isOverTarget ? 'success' : 'warning'}">
                             ${isOverTarget ? '✓ ABOVE TARGET' : '⚠ BELOW TARGET'}
                         </span>
                     </div>
                 `;
 
                 container.appendChild(metricDiv);
-
-                // Draw gauge after adding to DOM
-                setTimeout(() => {
-                    drawGauge(gaugeId, percentage, isOverTarget);
-                }, 50);
             });
         }
-
-        function drawGauge(svgId, percentage, isOverTarget) {
-            const svg = document.getElementById(svgId);
-            const centerX = 100;
-            const centerY = 100;
-            const radius = 70;
-            const strokeWidth = 12;
-            
-            // Clamp percentage to 0-150 for display
-            const displayPercentage = Math.min(Math.max(percentage, 0), 150);
-            
-            // Calculate angles (semi-circle from 180° to 0°)
-            const startAngle = 180;
-            const endAngle = 0;
-            const totalAngle = startAngle - endAngle;
-            
-            // Background arc (gray)
-            const backgroundPath = describeArc(centerX, centerY, radius, startAngle, endAngle);
-            const backgroundArc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            backgroundArc.setAttribute('d', backgroundPath);
-            backgroundArc.setAttribute('fill', 'none');
-            backgroundArc.setAttribute('stroke', '#E5E5E5');
-            backgroundArc.setAttribute('stroke-width', strokeWidth);
-            backgroundArc.setAttribute('stroke-linecap', 'round');
-            svg.appendChild(backgroundArc);
-            
-            // Progress arc (green/yellow gradient)
-            const progressAngle = startAngle - (displayPercentage / 100 * totalAngle);
-            const progressPath = describeArc(centerX, centerY, radius, startAngle, progressAngle);
-            const progressArc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            progressArc.setAttribute('d', progressPath);
-            progressArc.setAttribute('fill', 'none');
-            progressArc.setAttribute('stroke', isOverTarget ? '#00A651' : '#FF9500');
-            progressArc.setAttribute('stroke-width', strokeWidth);
-            progressArc.setAttribute('stroke-linecap', 'round');
-            
-            // Animate the gauge
-            const length = progressArc.getTotalLength();
-            progressArc.style.strokeDasharray = length;
-            progressArc.style.strokeDashoffset = length;
-            progressArc.style.animation = 'drawGauge 1s ease-out forwards';
-            
-            svg.appendChild(progressArc);
-            
-            // Target marker at 100%
-            const targetAngle = startAngle - totalAngle;
-            const targetPoint = polarToCartesian(centerX, centerY, radius, targetAngle);
-            const targetMarker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            targetMarker.setAttribute('cx', targetPoint.x);
-            targetMarker.setAttribute('cy', targetPoint.y);
-            targetMarker.setAttribute('r', '4');
-            targetMarker.setAttribute('fill', '#333333');
-            svg.appendChild(targetMarker);
-        }
-
-        function describeArc(x, y, radius, startAngle, endAngle) {
-            const start = polarToCartesian(x, y, radius, endAngle);
-            const end = polarToCartesian(x, y, radius, startAngle);
-            const largeArcFlag = Math.abs(endAngle - startAngle) <= 180 ? "0" : "1";
-            
-            return [
-                "M", start.x, start.y,
-                "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y
-            ].join(" ");
-        }
-
-        // Add gauge animation keyframes
-        const gaugeStyle = document.createElement('style');
-        gaugeStyle.textContent = `
-            @keyframes drawGauge {
-                to {
-                    stroke-dashoffset: 0;
-                }
-            }
-        `;
-        document.head.appendChild(gaugeStyle);
 
         // Sales Status Table
         let tableSortColumn = null;
