@@ -17,65 +17,58 @@
             color: #333333;
             margin: 0;
             padding: 0;
-            overflow-x: auto;
         }
 
         .dashboard-container {
             width: 100%;
             max-width: 100%;
-            min-width: 900px;
         }
 
         /* Main Content */
         .main-content {
-            padding: 20px;
+            padding: 15px;
             width: 100%;
             max-width: 100%;
             box-sizing: border-box;
-            min-width: 900px;
         }
 
         .dashboard-header {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .dashboard-title {
-            font-size: clamp(24px, 4vw, 32px);
+            font-size: clamp(20px, 3vw, 26px);
             font-weight: 700;
             color: #333333;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
         }
 
         .dashboard-meta {
             color: #6B6B6B;
-            font-size: clamp(12px, 1.5vw, 14px);
+            font-size: clamp(11px, 1.3vw, 13px);
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
         }
 
         .dashboard-meta span:not(:last-child)::after {
             content: '|';
-            margin-left: 8px;
+            margin-left: 6px;
             color: #E5E5E5;
         }
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(2, minmax(400px, 1fr));
-            gap: 12px;
-            margin-bottom: 12px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
         }
 
         .dashboard-grid.two-col {
-            grid-template-columns: repeat(2, minmax(400px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
         }
 
-        @media (max-width: 900px) {
-            .main-content {
-                min-width: 100%;
-            }
-            
+        @media (max-width: 900px) {            
             .dashboard-grid,
             .dashboard-grid.two-col {
                 grid-template-columns: 1fr;
@@ -103,14 +96,14 @@
 
         .card {
             background: white;
-            border-radius: 12px;
-            padding: clamp(15px, 3vw, 25px);
+            border-radius: 10px;
+            padding: clamp(12px, 2vw, 18px);
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             transition: box-shadow 0.3s;
         }
 
         .card.compact {
-            padding: clamp(12px, 2.5vw, 20px);
+            padding: clamp(10px, 2vw, 16px);
             display: flex;
             flex-direction: column;
         }
@@ -127,7 +120,7 @@
         .section-divider {
             height: 1px;
             background: linear-gradient(90deg, transparent 0%, #E5E5E5 20%, #E5E5E5 80%, transparent 100%);
-            margin: clamp(12px, 2vw, 18px) 0;
+            margin: clamp(10px, 1.5vw, 15px) 0;
         }
 
         /* Sales Summary Widget */
@@ -284,21 +277,21 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: clamp(12px, 2vw, 20px);
+            margin-bottom: clamp(10px, 1.5vw, 15px);
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
         }
 
         .card-title {
-            font-size: clamp(16px, 2vw, 18px);
+            font-size: clamp(14px, 1.8vw, 16px);
             font-weight: 700;
             color: #333333;
         }
 
         .card-subtitle {
-            font-size: clamp(11px, 1.2vw, 12px);
+            font-size: clamp(10px, 1.1vw, 11px);
             color: #6B6B6B;
-            margin-top: 4px;
+            margin-top: 3px;
         }
 
         .card-actions {
@@ -328,11 +321,11 @@
 
         /* Bar Chart */
         .bar-chart {
-            height: clamp(180px, 25vw, 260px);
+            height: clamp(140px, 20vw, 200px);
             position: relative;
             display: flex;
             align-items: flex-end;
-            padding: 10px 0 10px 40px;
+            padding: 8px 0 8px 35px;
             border-bottom: 2px solid #E5E5E5;
             border-left: 2px solid #E5E5E5;
         }
@@ -340,15 +333,15 @@
         .bar-chart-y-axis {
             position: absolute;
             left: 0;
-            top: 10px;
-            bottom: 30px;
-            width: 35px;
+            top: 8px;
+            bottom: 25px;
+            width: 30px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            font-size: clamp(9px, 1vw, 11px);
+            font-size: clamp(8px, 1vw, 10px);
             color: #6B6B6B;
-            padding-right: 5px;
+            padding-right: 4px;
             text-align: right;
         }
 
@@ -357,23 +350,23 @@
             flex-direction: column;
             align-items: center;
             flex: 1;
-            max-width: 60px;
-            min-width: 35px;
+            max-width: 50px;
+            min-width: 30px;
         }
 
         .bars-wrapper {
             display: flex;
-            gap: 3px;
+            gap: 2px;
             width: 100%;
-            height: clamp(140px, 20vw, 210px);
+            height: clamp(110px, 16vw, 160px);
             align-items: flex-end;
             justify-content: center;
         }
 
         .bar {
-            width: clamp(22px, 3.5vw, 32px);
+            width: clamp(18px, 3vw, 26px);
             background: linear-gradient(180deg, #00A651 0%, #00d66a 100%);
-            border-radius: 4px 4px 0 0;
+            border-radius: 3px 3px 0 0;
             transition: all 0.3s;
             cursor: pointer;
             position: relative;
@@ -418,18 +411,18 @@
         }
 
         .bar-label {
-            margin-top: 8px;
-            font-size: clamp(10px, 1.2vw, 12px);
+            margin-top: 6px;
+            font-size: clamp(9px, 1.1vw, 11px);
             color: #6B6B6B;
             font-weight: 500;
         }
 
         .chart-legend {
             display: flex;
-            gap: clamp(10px, 2vw, 20px);
+            gap: clamp(8px, 1.5vw, 15px);
             justify-content: center;
-            margin-top: 12px;
-            padding-top: 12px;
+            margin-top: 10px;
+            padding-top: 10px;
             border-top: 1px solid #E5E5E5;
             flex-wrap: wrap;
         }
@@ -437,14 +430,14 @@
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: clamp(11px, 1.3vw, 13px);
+            gap: 5px;
+            font-size: clamp(10px, 1.2vw, 12px);
             color: #6B6B6B;
         }
 
         .legend-color {
-            width: 14px;
-            height: 14px;
+            width: 12px;
+            height: 12px;
             border-radius: 3px;
             flex-shrink: 0;
         }
@@ -453,23 +446,23 @@
         .basket-chart {
             display: flex;
             flex-direction: column;
-            gap: clamp(12px, 2vw, 18px);
-            padding: 10px 0;
+            gap: clamp(10px, 1.5vw, 14px);
+            padding: 8px 0;
         }
 
         .basket-metric {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
         }
 
         .basket-metric-label {
-            flex: 0 0 clamp(100px, 18vw, 140px);
+            flex: 0 0 clamp(85px, 16vw, 120px);
             text-align: right;
         }
 
         .basket-metric-name {
-            font-size: clamp(10px, 1.2vw, 12px);
+            font-size: clamp(9px, 1.1vw, 11px);
             font-weight: 600;
             color: #333333;
             display: block;
@@ -477,7 +470,7 @@
         }
 
         .basket-metric-target {
-            font-size: clamp(8px, 1vw, 10px);
+            font-size: clamp(8px, 0.95vw, 9px);
             color: #6B6B6B;
         }
 
@@ -490,20 +483,20 @@
 
         .basket-bar-wrapper {
             position: relative;
-            height: clamp(28px, 4vw, 36px);
+            height: clamp(24px, 3.5vw, 32px);
             background: #F5F5F5;
-            border-radius: 6px;
+            border-radius: 5px;
             overflow: hidden;
         }
 
         .basket-bar {
             height: 100%;
             background: linear-gradient(90deg, #00A651 0%, #00d66a 100%);
-            border-radius: 6px;
+            border-radius: 5px;
             transition: width 0.8s ease-out;
             display: flex;
             align-items: center;
-            padding-left: 12px;
+            padding-left: 10px;
             position: relative;
             animation: growBarWidth 1s ease-out;
         }
@@ -513,7 +506,7 @@
         }
 
         .basket-bar-value {
-            font-size: clamp(13px, 1.6vw, 16px);
+            font-size: clamp(11px, 1.4vw, 14px);
             font-weight: 700;
             color: white;
             text-shadow: 0 1px 2px rgba(0,0,0,0.2);
@@ -526,7 +519,7 @@
             bottom: 0;
             width: 3px;
             background: #333333;
-            border-radius: 0 6px 6px 0;
+            border-radius: 0 5px 5px 0;
         }
 
         .basket-bar-target-line::after {
@@ -543,9 +536,9 @@
         }
 
         .basket-status-badge {
-            font-size: clamp(8px, 1vw, 10px);
-            padding: 2px 8px;
-            border-radius: 10px;
+            font-size: clamp(7px, 0.9vw, 9px);
+            padding: 2px 6px;
+            border-radius: 8px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.3px;
@@ -577,21 +570,21 @@
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: clamp(12px, 1.5vw, 14px);
+            font-size: clamp(11px, 1.3vw, 13px);
         }
 
         .data-table.compact-table {
-            font-size: clamp(10px, 1.3vw, 12px);
+            font-size: clamp(10px, 1.2vw, 11px);
         }
 
         .data-table.compact-table th,
         .data-table.compact-table td {
-            padding: clamp(6px, 1.2vw, 10px) clamp(8px, 1.5vw, 12px);
+            padding: clamp(5px, 1vw, 8px) clamp(6px, 1.2vw, 10px);
         }
 
         .data-table.compact-table .status-badge {
-            padding: 3px 8px;
-            font-size: clamp(8px, 1vw, 10px);
+            padding: 2px 6px;
+            font-size: clamp(7px, 0.9vw, 9px);
         }
 
         .data-table thead {
@@ -599,9 +592,9 @@
         }
 
         .data-table th {
-            padding: clamp(8px, 1.5vw, 12px) clamp(10px, 2vw, 15px);
+            padding: clamp(6px, 1.2vw, 10px) clamp(8px, 1.5vw, 12px);
             text-align: left;
-            font-size: clamp(10px, 1.2vw, 12px);
+            font-size: clamp(9px, 1.1vw, 11px);
             font-weight: 700;
             color: #6B6B6B;
             text-transform: uppercase;
@@ -642,8 +635,8 @@
         }
 
         .data-table td {
-            padding: clamp(10px, 2vw, 15px);
-            font-size: clamp(12px, 1.5vw, 14px);
+            padding: clamp(8px, 1.5vw, 12px);
+            font-size: clamp(11px, 1.3vw, 13px);
             color: #333333;
         }
 
@@ -653,12 +646,12 @@
 
         @media (max-width: 600px) {
             .data-table {
-                font-size: 11px;
+                font-size: 10px;
             }
             
             .data-table th,
             .data-table td {
-                padding: 8px 6px;
+                padding: 6px 5px;
             }
         }
 
@@ -677,13 +670,13 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: clamp(15px, 2.5vw, 25px);
+            gap: clamp(12px, 2vw, 20px);
         }
 
         .donut-chart-wrapper {
             position: relative;
-            width: clamp(140px, 22vw, 200px);
-            height: clamp(140px, 22vw, 200px);
+            width: clamp(110px, 18vw, 160px);
+            height: clamp(110px, 18vw, 160px);
             flex-shrink: 0;
         }
 
@@ -701,16 +694,16 @@
         }
 
         .donut-center-value {
-            font-size: clamp(28px, 4.5vw, 40px);
+            font-size: clamp(22px, 3.5vw, 32px);
             font-weight: 700;
             color: #00A651;
             line-height: 1;
         }
 
         .donut-center-label {
-            font-size: clamp(10px, 1.3vw, 12px);
+            font-size: clamp(9px, 1.1vw, 11px);
             color: #6B6B6B;
-            margin-top: 4px;
+            margin-top: 3px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -726,9 +719,9 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: clamp(8px, 1.5vw, 12px) clamp(10px, 2vw, 15px);
-            border-radius: 6px;
-            margin-bottom: clamp(5px, 1vw, 8px);
+            padding: clamp(6px, 1.2vw, 10px) clamp(8px, 1.5vw, 12px);
+            border-radius: 5px;
+            margin-bottom: clamp(4px, 0.8vw, 6px);
             cursor: pointer;
             transition: all 0.2s;
         }
@@ -740,24 +733,24 @@
         .donut-legend-left {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .donut-legend-color {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             border-radius: 2px;
             flex-shrink: 0;
         }
 
         .donut-legend-name {
-            font-size: clamp(11px, 1.4vw, 13px);
+            font-size: clamp(10px, 1.2vw, 12px);
             font-weight: 600;
             color: #333333;
         }
 
         .donut-legend-value {
-            font-size: clamp(14px, 1.8vw, 16px);
+            font-size: clamp(12px, 1.5vw, 14px);
             font-weight: 700;
             color: #333333;
         }
