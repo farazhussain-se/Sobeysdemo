@@ -24,14 +24,16 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            max-width: 400px; /* Mobile width */
+            max-width: 400px;
             margin: 0 auto;
             border: 1px solid #e5e7eb;
+            /* Allow select for the whole card to make the hold gesture easier */
+            user-select: none; 
+            cursor: pointer; /* Indicate interactivity */
         }
 
         #workday-widget-container * {
             box-sizing: border-box;
-            user-select: none; /* Prevent text selection for hold effect */
         }
 
         /* Header */
@@ -50,11 +52,6 @@
             gap: 10px;
         }
 
-        .wday-logo-img {
-            height: 20px; /* Placeholder for Sobeys/Workday Logo */
-            width: auto;
-        }
-
         .wday-header h2 {
             margin: 0;
             font-size: 16px;
@@ -64,76 +61,29 @@
             letter-spacing: 0.5px;
         }
 
-        /* Privacy Cover */
-        .privacy-cover {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, var(--sobeys-green) 0%, #084010 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            z-index: 10;
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            cursor: pointer;
-        }
-
-        .privacy-cover.hidden {
-            opacity: 0;
-            pointer-events: none;
-            transform: scale(1.05);
-        }
-
-        .privacy-icon {
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-
-        .privacy-text {
-            font-size: 14px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .privacy-sub {
-            font-size: 10px;
-            opacity: 0.8;
-            margin-top: 4px;
-        }
-
         /* Hero Section */
         .wday-hero-container {
             position: relative;
-            height: 160px; /* Fixed height for cover */
-            overflow: hidden;
-            background: var(--sobeys-light-grey);
-        }
-
-        .wday-hero-content {
             padding: 24px;
             text-align: center;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            background: var(--sobeys-light-grey);
+            border-bottom: 1px solid #e5e7eb;
         }
 
         .wday-hero-date {
             font-size: 13px;
             font-weight: 500;
             color: var(--sobeys-grey);
-            margin-bottom: 4px;
+            margin-bottom: 8px;
         }
 
         .wday-hero-amount {
             font-size: 32px;
             font-weight: 800;
             color: var(--black);
-            margin: 4px 0;
+            margin: 0 0 4px 0;
             line-height: 1;
+            transition: filter 0.2s ease, opacity 0.2s ease;
         }
 
         .wday-hero-label {
@@ -141,23 +91,27 @@
             color: var(--sobeys-grey);
             font-weight: 500;
             text-transform: uppercase;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
-
-        .wday-btn-details {
-            background-color: var(--sobeys-green);
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-size: 13px;
+        
+        /* Privacy Overlay Text */
+        .privacy-hint {
+            font-size: 11px;
+            color: var(--sobeys-green);
             font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            opacity: 0.8;
         }
-
-        .wday-btn-details:hover {
-            background-color: var(--sobeys-green-hover);
+        
+        .privacy-hint svg {
+            width: 14px;
+            height: 14px;
         }
 
         /* History List */
@@ -211,6 +165,7 @@
             font-size: 14px;
             font-weight: 700;
             color: var(--black);
+            transition: filter 0.2s ease, opacity 0.2s ease;
         }
 
         .history-status {
@@ -218,6 +173,19 @@
             color: var(--sobeys-apple-green);
             font-weight: 600;
             text-transform: uppercase;
+        }
+
+        /* BLUR EFFECT CLASS */
+        .blurred {
+            filter: blur(8px);
+            opacity: 0.6;
+            user-select: none;
+        }
+        
+        /* When revealing, remove blur */
+        .revealed .blurred {
+            filter: blur(0);
+            opacity: 1;
         }
 
         /* Footer */
@@ -228,55 +196,34 @@
             border-top: 1px solid #e5e7eb;
             font-size: 10px;
             color: #9ca3af;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
-        }
-
-        /* Touch feedback animation */
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(0.98); }
-            100% { transform: scale(1); }
-        }
-
-        .holding .privacy-cover {
-            transform: scale(0.98);
         }
     </style>
 </head>
 <body>
+    <!-- The container acts as the button -->
     <div id="workday-widget-container">
         <!-- Header -->
         <div class="wday-header">
             <div class="wday-header-left">
-                <!-- Simple SVG Icon representing Payslips -->
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0E5A19" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
                 <h2>Ma Paie (My Pay)</h2>
             </div>
         </div>
 
-        <!-- Hero Section with Privacy Cover -->
-        <div class="wday-hero-container" id="heroContainer">
+        <!-- Hero Section -->
+        <div class="wday-hero-container">
+            <div class="wday-hero-date">Pay Date: Feb 12, 2026</div>
+            <!-- Blur applied by default -->
+            <div class="wday-hero-amount blurred">$1,245.80</div>
+            <div class="wday-hero-label">Net Pay / Paie Nette</div>
             
-            <!-- The Privacy Overlay -->
-            <div class="privacy-cover" id="privacyCover">
-                <div class="privacy-icon">👁️</div>
-                <div class="privacy-text">Maintenir pour révéler</div>
-                <div class="privacy-sub">(Hold to reveal pay)</div>
-            </div>
-
-            <!-- The Revealed Content -->
-            <div class="wday-hero-content">
-                <div class="wday-hero-date">Pay Date: Feb 12, 2026</div>
-                <div class="wday-hero-amount">$1,245.80</div>
-                <div class="wday-hero-label">Net Pay / Paie Nette</div>
-                <button class="wday-btn-details" onclick="alert('Opening Dayforce/Workday details...')">Voir Détails</button>
+            <div class="privacy-hint">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>ircle cx="12" cy="12" r="3"/></svg>
+                Maintenir pour révéler (Hold to reveal)
             </div>
         </div>
 
-        <!-- Recent History -->
+        <!-- History List -->
         <div class="wday-history">
             <div class="wday-history-title">Historique (History)</div>
             
@@ -286,7 +233,8 @@
                     <div class="history-period">Jan 12 - Jan 25</div>
                 </div>
                 <div class="history-right">
-                    <div class="history-amount">$1,180.50</div>
+                    <!-- Blur applied by default -->
+                    <div class="history-amount blurred">$1,180.50</div>
                     <div class="history-status">Déposé (Paid)</div>
                 </div>
             </div>
@@ -297,7 +245,8 @@
                     <div class="history-period">Dec 29 - Jan 11</div>
                 </div>
                 <div class="history-right">
-                    <div class="history-amount">$1,210.25</div>
+                    <!-- Blur applied by default -->
+                    <div class="history-amount blurred">$1,210.25</div>
                     <div class="history-status">Déposé (Paid)</div>
                 </div>
             </div>
@@ -310,47 +259,30 @@
     </div>
 
     <script>
-        const container = document.getElementById('heroContainer');
-        const cover = document.getElementById('privacyCover');
-        let pressTimer;
+        const widget = document.getElementById('workday-widget-container');
 
-        // Function to reveal
-        function reveal() {
-            cover.classList.add('hidden');
+        // Functions to toggle 'revealed' class on the container
+        function showData() {
+            widget.classList.add('revealed');
         }
 
-        // Function to hide
-        function hide() {
-            cover.classList.remove('hidden');
+        function hideData() {
+            widget.classList.remove('revealed');
         }
 
         // Mouse Events (Desktop)
-        container.addEventListener('mousedown', () => {
-            container.classList.add('holding');
-            reveal();
-        });
-
-        container.addEventListener('mouseup', () => {
-            container.classList.remove('holding');
-            hide();
-        });
-
-        container.addEventListener('mouseleave', () => {
-            container.classList.remove('holding');
-            hide();
-        });
+        widget.addEventListener('mousedown', showData);
+        widget.addEventListener('mouseup', hideData);
+        widget.addEventListener('mouseleave', hideData);
 
         // Touch Events (Mobile)
-        container.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // Prevent scrolling while holding
-            container.classList.add('holding');
-            reveal();
+        widget.addEventListener('touchstart', (e) => {
+            // e.preventDefault(); // Optional: prevent scroll if desired, but usually better to allow scrolling unless holding specifically
+            showData();
         });
 
-        container.addEventListener('touchend', () => {
-            container.classList.remove('holding');
-            hide();
-        });
+        widget.addEventListener('touchend', hideData);
+        widget.addEventListener('touchcancel', hideData);
     </script>
 </body>
 </html>
