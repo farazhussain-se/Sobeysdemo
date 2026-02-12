@@ -1,1211 +1,352 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
-    <title>Sobeys Store Performance Dashboard</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: #F5F5F5;
-            color: #333333;
-            margin: 0;
-            padding: 0;
-            overflow-x: auto;
-        }
-
-        .dashboard-container {
-            width: 100%;
-            max-width: 100%;
-            min-width: 790px;
-        }
-
-        /* Main Content */
-        .main-content {
-            padding: 15px;
-            width: 100%;
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-
-        .dashboard-header {
-            margin-bottom: 15px;
-        }
-
-        .dashboard-title {
-            font-size: clamp(20px, 3vw, 26px);
-            font-weight: 700;
-            color: #333333;
-            margin-bottom: 5px;
-        }
-
-        .dashboard-meta {
-            color: #6B6B6B;
-            font-size: clamp(11px, 1.3vw, 13px);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-
-        .dashboard-meta span:not(:last-child)::after {
-            content: '|';
-            margin-left: 6px;
-            color: #E5E5E5;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: minmax(370px, 1fr) minmax(370px, 1fr);
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .dashboard-grid.two-col {
-            grid-template-columns: minmax(370px, 1fr) minmax(370px, 1fr);
-        }
-
-        @media (max-width: 900px) {            
-            .dashboard-grid,
-            .dashboard-grid.two-col {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .basket-chart {
-                flex-direction: column;
-            }
-
-            .donut-container {
-                flex-direction: column;
-            }
-            
-            .basket-metric {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .basket-metric-label {
-                margin-bottom: 8px;
-            }
-        }
-
-        .card {
-            background: white;
-            border-radius: 10px;
-            padding: clamp(12px, 2vw, 18px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: box-shadow 0.3s;
-        }
-
-        .card.compact {
-            padding: clamp(10px, 2vw, 16px);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card.compact > * {
-            flex-shrink: 0;
-        }
-
-        .card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-        }
-
-        /* Section Divider */
-        .section-divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent 0%, #E5E5E5 20%, #E5E5E5 80%, transparent 100%);
-            margin: clamp(10px, 1.5vw, 15px) 0;
-        }
-
-        /* Sales Summary Widget */
-        .sales-summary {
-            margin-top: 15px;
-            padding: clamp(12px, 2.5vw, 20px);
-            background: #FAFAFA;
-            border-radius: 10px;
-            border: 1px solid #E5E5E5;
-        }
-
-        .sales-summary-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .sales-summary-left h3 {
-            font-size: clamp(10px, 1.2vw, 12px);
-            font-weight: 600;
-            color: #6B6B6B;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 6px;
-        }
-
-        .sales-summary-amount {
-            font-size: clamp(24px, 4vw, 32px);
-            font-weight: 700;
-            color: #333333;
-            line-height: 1;
-        }
-
-        .sales-summary-target {
-            font-size: clamp(11px, 1.3vw, 13px);
-            color: #6B6B6B;
-            margin-top: 4px;
-        }
-
-        .sales-summary-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: clamp(9px, 1.1vw, 11px);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-        }
-
-        .sales-summary-badge.on-track {
-            background: #E8F5E9;
-            color: #00A651;
-        }
-
-        .sales-summary-badge.below {
-            background: #FFF3E0;
-            color: #FF9500;
-        }
-
-        .sales-summary-variance {
-            font-size: clamp(14px, 2vw, 16px);
-            font-weight: 700;
-            margin-top: 4px;
-        }
-
-        .sales-summary-variance.positive {
-            color: #00A651;
-        }
-
-        .sales-summary-variance.negative {
-            color: #FF3B30;
-        }
-
-        .sales-progress-cards {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: clamp(10px, 1.5vw, 15px);
-        }
-
-        @media (max-width: 480px) {
-            .sales-progress-cards {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .progress-card {
-            background: white;
-            padding: clamp(12px, 2vw, 20px);
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid #E5E5E5;
-            transition: all 0.3s;
-        }
-
-        .progress-card:hover {
-            border-color: #00A651;
-            transform: translateY(-2px);
-        }
-
-        .progress-card-title {
-            font-size: clamp(9px, 1.1vw, 11px);
-            font-weight: 600;
-            color: #6B6B6B;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-        }
-
-        .progress-ring-container {
-            width: clamp(70px, 12vw, 100px);
-            height: clamp(70px, 12vw, 100px);
-            margin: 0 auto 8px;
-            position: relative;
-        }
-
-        .progress-ring {
-            transform: rotate(-90deg);
-            width: 100%;
-            height: 100%;
-        }
-
-        .progress-ring-circle {
-            transition: stroke-dashoffset 0.8s ease-out;
-            transform-origin: center;
-        }
-
-        .progress-ring-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-        }
-
-        .progress-ring-percentage {
-            font-size: clamp(18px, 3vw, 22px);
-            font-weight: 700;
-            color: #00A651;
-            display: block;
-            line-height: 1;
-        }
-
-        .progress-ring-label {
-            font-size: clamp(8px, 1vw, 10px);
-            color: #6B6B6B;
-            display: block;
-            margin-top: 2px;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: clamp(10px, 1.5vw, 15px);
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .card-title {
-            font-size: clamp(14px, 1.8vw, 16px);
-            font-weight: 700;
-            color: #333333;
-        }
-
-        .card-subtitle {
-            font-size: clamp(10px, 1.1vw, 11px);
-            color: #6B6B6B;
-            margin-top: 3px;
-        }
-
-        .card-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            border: 1px solid #E5E5E5;
-            background: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            font-size: 14px;
-        }
-
-        .btn-icon:hover {
-            background: #F5F5F5;
-            border-color: #00A651;
-            color: #00A651;
-        }
-
-        /* Bar Chart */
-        .bar-chart {
-            height: clamp(140px, 20vw, 200px);
-            position: relative;
-            display: flex;
-            align-items: flex-end;
-            padding: 8px 0 8px 35px;
-            border-bottom: 2px solid #E5E5E5;
-            border-left: 2px solid #E5E5E5;
-        }
-
-        .bar-chart-y-axis {
-            position: absolute;
-            left: 0;
-            top: 8px;
-            bottom: 25px;
-            width: 30px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            font-size: clamp(8px, 1vw, 10px);
-            color: #6B6B6B;
-            padding-right: 4px;
-            text-align: right;
-        }
-
-        .bar-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex: 1;
-            max-width: 50px;
-            min-width: 30px;
-        }
-
-        .bars-wrapper {
-            display: flex;
-            gap: 2px;
-            width: 100%;
-            height: clamp(110px, 16vw, 160px);
-            align-items: flex-end;
-            justify-content: center;
-        }
-
-        .bar {
-            width: clamp(18px, 3vw, 26px);
-            background: linear-gradient(180deg, #00A651 0%, #00d66a 100%);
-            border-radius: 3px 3px 0 0;
-            transition: all 0.3s;
-            cursor: pointer;
-            position: relative;
-            animation: growBar 0.8s ease-out backwards;
-        }
-
-        @keyframes growBar {
-            from {
-                transform: scaleY(0);
-                transform-origin: bottom;
-            }
-            to {
-                transform: scaleY(1);
-                transform-origin: bottom;
-            }
-        }
-
-        .bar.yesterday {
-            background: linear-gradient(180deg, #6B6B6B 0%, #999999 100%);
-        }
-
-        .bar:hover {
-            opacity: 0.8;
-            transform: translateY(-3px);
-        }
-
-        .bar-value {
-            position: absolute;
-            top: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 11px;
-            font-weight: 600;
-            color: #333333;
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .bar:hover .bar-value {
-            opacity: 1;
-        }
-
-        .bar-label {
-            margin-top: 6px;
-            font-size: clamp(9px, 1.1vw, 11px);
-            color: #6B6B6B;
-            font-weight: 500;
-        }
-
-        .chart-legend {
-            display: flex;
-            gap: clamp(8px, 1.5vw, 15px);
-            justify-content: center;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #E5E5E5;
-            flex-wrap: wrap;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: clamp(10px, 1.2vw, 12px);
-            color: #6B6B6B;
-        }
-
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 3px;
-            flex-shrink: 0;
-        }
-
-        /* Basket Metrics Chart */
-        .basket-chart {
-            display: flex;
-            flex-direction: column;
-            gap: clamp(10px, 1.5vw, 14px);
-            padding: 8px 0;
-        }
-
-        .basket-metric {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .basket-metric-label {
-            flex: 0 0 clamp(85px, 16vw, 120px);
-            text-align: right;
-        }
-
-        .basket-metric-name {
-            font-size: clamp(9px, 1.1vw, 11px);
-            font-weight: 600;
-            color: #333333;
-            display: block;
-            margin-bottom: 2px;
-        }
-
-        .basket-metric-target {
-            font-size: clamp(8px, 0.95vw, 9px);
-            color: #6B6B6B;
-        }
-
-        .basket-bar-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
-        .basket-bar-wrapper {
-            position: relative;
-            height: clamp(24px, 3.5vw, 32px);
-            background: #F5F5F5;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-
-        .basket-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #00A651 0%, #00d66a 100%);
-            border-radius: 5px;
-            transition: width 0.8s ease-out;
-            display: flex;
-            align-items: center;
-            padding-left: 10px;
-            position: relative;
-            animation: growBarWidth 1s ease-out;
-        }
-
-        @keyframes growBarWidth {
-            from { width: 0 !important; }
-        }
-
-        .basket-bar-value {
-            font-size: clamp(11px, 1.4vw, 14px);
-            font-weight: 700;
-            color: white;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-
-        .basket-bar-target-line {
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            width: 3px;
-            background: #333333;
-            border-radius: 0 5px 5px 0;
-        }
-
-        .basket-bar-target-line::after {
-            content: '';
-            position: absolute;
-            right: -4px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 0;
-            height: 0;
-            border-left: 4px solid #333333;
-            border-top: 4px solid transparent;
-            border-bottom: 4px solid transparent;
-        }
-
-        .basket-status-badge {
-            font-size: clamp(7px, 0.9vw, 9px);
-            padding: 2px 6px;
-            border-radius: 8px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            display: inline-block;
-            margin-top: 2px;
-        }
-
-        /* Status Indicator */
-        .status-badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .status-badge.success {
-            background: #E8F5E9;
-            color: #00A651;
-        }
-
-        .status-badge.warning {
-            background: #FFF3E0;
-            color: #FF9500;
-        }
-
-        /* Table */
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: clamp(11px, 1.3vw, 13px);
-        }
-
-        .data-table.compact-table {
-            font-size: clamp(10px, 1.2vw, 11px);
-        }
-
-        .data-table.compact-table th,
-        .data-table.compact-table td {
-            padding: clamp(5px, 1vw, 8px) clamp(6px, 1.2vw, 10px);
-        }
-
-        .data-table.compact-table .status-badge {
-            padding: 2px 6px;
-            font-size: clamp(7px, 0.9vw, 9px);
-        }
-
-        .data-table thead {
-            background: #F5F5F5;
-        }
-
-        .data-table th {
-            padding: clamp(6px, 1.2vw, 10px) clamp(8px, 1.5vw, 12px);
-            text-align: left;
-            font-size: clamp(9px, 1.1vw, 11px);
-            font-weight: 700;
-            color: #6B6B6B;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            user-select: none;
-            transition: background 0.2s;
-        }
-
-        .data-table th:hover {
-            background: #EBEBEB;
-        }
-
-        .data-table th.sortable::after {
-            content: ' ⇅';
-            opacity: 0.4;
-            font-size: 10px;
-        }
-
-        .data-table th.sort-asc::after {
-            content: ' ▲';
-            opacity: 1;
-        }
-
-        .data-table th.sort-desc::after {
-            content: ' ▼';
-            opacity: 1;
-        }
-
-        .data-table tbody tr {
-            border-bottom: 1px solid #E5E5E5;
-            transition: background 0.2s;
-            animation: slideIn 0.4s ease-out backwards;
-        }
-
-        .data-table tbody tr:hover {
-            background: #FAFAFA;
-        }
-
-        .data-table td {
-            padding: clamp(8px, 1.5vw, 12px);
-            font-size: clamp(11px, 1.3vw, 13px);
-            color: #333333;
-        }
-
-        .data-table td:first-child {
-            font-weight: 600;
-        }
-
-        @media (max-width: 600px) {
-            .data-table {
-                font-size: 10px;
-            }
-            
-            .data-table th,
-            .data-table td {
-                padding: 6px 5px;
-            }
-        }
-
-        .value-positive {
-            color: #00A651;
-            font-weight: 600;
-        }
-
-        .value-negative {
-            color: #FF3B30;
-            font-weight: 600;
-        }
-
-        /* Donut Chart */
-        .donut-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: clamp(12px, 2vw, 20px);
-        }
-
-        .donut-chart-wrapper {
-            position: relative;
-            width: clamp(110px, 18vw, 160px);
-            height: clamp(110px, 18vw, 160px);
-            flex-shrink: 0;
-        }
-
-        .donut-chart {
-            width: 100%;
-            height: 100%;
-        }
-
-        .donut-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-        }
-
-        .donut-center-value {
-            font-size: clamp(22px, 3.5vw, 32px);
-            font-weight: 700;
-            color: #00A651;
-            line-height: 1;
-        }
-
-        .donut-center-label {
-            font-size: clamp(9px, 1.1vw, 11px);
-            color: #6B6B6B;
-            margin-top: 3px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .donut-legend {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .donut-legend-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: clamp(6px, 1.2vw, 10px) clamp(8px, 1.5vw, 12px);
-            border-radius: 5px;
-            margin-bottom: clamp(4px, 0.8vw, 6px);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .donut-legend-item:hover {
-            background: #F5F5F5;
-        }
-
-        .donut-legend-left {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .donut-legend-color {
-            width: 10px;
-            height: 10px;
-            border-radius: 2px;
-            flex-shrink: 0;
-        }
-
-        .donut-legend-name {
-            font-size: clamp(10px, 1.2vw, 12px);
-            font-weight: 600;
-            color: #333333;
-        }
-
-        .donut-legend-value {
-            font-size: clamp(12px, 1.5vw, 14px);
-            font-weight: 700;
-            color: #333333;
-        }
-
-        /* Tooltip */
-        .tooltip {
-            position: fixed;
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 6px;
-            font-size: 12px;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s;
-            z-index: 1000;
-            white-space: nowrap;
-        }
-
-        .tooltip.show {
-            opacity: 1;
-        }
-
-        /* Animations */
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .data-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
-        .data-table tbody tr:nth-child(2) { animation-delay: 0.2s; }
-        .data-table tbody tr:nth-child(3) { animation-delay: 0.3s; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no">
+<title>Sobeys Store Performance Dashboard</title>
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+body {
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+background-color: #F5F5F5;
+color: #333333;
+margin: 0;
+padding: 0;
+overflow-x: auto;
+}
+.dashboard-container {
+width: 100%;
+max-width: 100%;
+min-width: 320px; /* Ensure mobile friendly */
+}
+/* Main Content */
+.main-content {
+padding: 10px;
+width: 100%;
+max-width: 100%;
+box-sizing: border-box;
+}
+.dashboard-header {
+margin-bottom: 12px;
+background: white;
+padding: 15px;
+border-radius: 8px;
+border-left: 5px solid #0E5A19; /* Sobeys Green */
+box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.dashboard-title {
+font-size: 18px;
+font-weight: 700;
+color: #0E5A19; /* Sobeys Green */
+margin-bottom: 4px;
+text-transform: uppercase;
+}
+.dashboard-meta {
+color: #6B6B6B;
+font-size: 11px;
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+}
+.dashboard-meta span {
+display: flex;
+align-items: center;
+gap: 4px;
+}
+.dashboard-grid {
+display: grid;
+grid-template-columns: 1fr; /* Single column for mobile */
+gap: 12px;
+margin-bottom: 10px;
+}
+/* Tablet/Desktop overrides */
+@media (min-width: 768px) {
+.dashboard-grid {
+grid-template-columns: repeat(2, 1fr);
+}
+.dashboard-title {
+font-size: 22px;
+}
+}
+.card {
+background: white;
+border-radius: 8px;
+padding: 15px;
+box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+border-top: 3px solid transparent;
+transition: all 0.2s;
+}
+.card:hover {
+border-top-color: #469E41; /* Apple Green hover */
+}
+.card-header {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+margin-bottom: 15px;
+}
+.card-title {
+font-size: 14px;
+font-weight: 700;
+color: #333333;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+.card-subtitle {
+font-size: 10px;
+color: #6B6B6B;
+margin-top: 2px;
+}
+/* Metric Big Number */
+.metric-highlight {
+font-size: 28px;
+font-weight: 800;
+color: #0E5A19;
+line-height: 1;
+margin-bottom: 5px;
+}
+.metric-trend {
+font-size: 11px;
+font-weight: 600;
+display: flex;
+align-items: center;
+gap: 4px;
+}
+.trend-up { color: #00A651; }
+.trend-down { color: #D32F2F; }
+/* Horizontal Bar Chart (Basket Analysis style) */
+.h-chart-row {
+margin-bottom: 12px;
+}
+.h-chart-labels {
+display: flex;
+justify-content: space-between;
+font-size: 11px;
+margin-bottom: 4px;
+color: #444;
+font-weight: 500;
+}
+.h-chart-bar-bg {
+background: #F0F2F5;
+height: 12px;
+border-radius: 6px;
+overflow: hidden;
+width: 100%;
+}
+.h-chart-bar-fill {
+height: 100%;
+background: linear-gradient(90deg, #469E41 0%, #0E5A19 100%);
+border-radius: 6px;
+width: 0;
+transition: width 1s ease-out;
+}
+/* Table Styles */
+.compact-table {
+width: 100%;
+border-collapse: collapse;
+font-size: 11px;
+}
+.compact-table th {
+text-align: left;
+color: #6B6B6B;
+font-weight: 600;
+padding-bottom: 8px;
+border-bottom: 1px solid #eee;
+}
+.compact-table td {
+padding: 8px 0;
+border-bottom: 1px solid #f9f9f9;
+color: #333;
+}
+.compact-table td:last-child {
+text-align: right;
+font-weight: 700;
+}
+/* Status Badge */
+.status-pill {
+padding: 2px 8px;
+border-radius: 10px;
+font-size: 10px;
+font-weight: 700;
+text-transform: uppercase;
+}
+.pill-green { background: #E8F5E9; color: #0E5A19; }
+.pill-orange { background: #FFF3E0; color: #E65100; }
+.pill-red { background: #FFEBEE; color: #C62828; }
+/* Donut Chart Simple */
+.donut-wrapper {
+display: flex;
+align-items: center;
+justify-content: space-around;
+padding: 10px 0;
+}
+.donut-legend {
+display: flex;
+flex-direction: column;
+gap: 8px;
+}
+.legend-row {
+display: flex;
+align-items: center;
+gap: 6px;
+font-size: 11px;
+color: #555;
+}
+.dot {
+width: 8px;
+height: 8px;
+border-radius: 50%;
+}
+/* Sobeys Specific Colors */
+.color-primary { background-color: #0E5A19; }
+.color-secondary { background-color: #469E41; }
+.color-accent { background-color: #8BC34A; }
+.color-alert { background-color: #D32F2F; }
+</style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="dashboard-header">
-                <h1 class="dashboard-title">Sales Overview</h1>
-                <div class="dashboard-meta">
-                    <span>Store #1234 - Toronto Downtown</span>
-                    <span>Today: February 6, 2026</span>
-                    <span>Last updated: 2:45 PM</span>
-                </div>
-            </div>
-
-            <!-- Top Row: Sales Chart and Basket Analysis -->
-            <div class="dashboard-grid two-col">
-                <!-- Sales Volume by Hour -->
-                <div class="card">
-                    <div class="card-header">
-                        <div>
-                            <div class="card-title">Sales Volume by Hour</div>
-                            <div class="card-subtitle">Comparing today vs yesterday</div>
-                        </div>
-                        <div class="card-actions">
-                            <button class="btn-icon" title="Refresh">↻</button>
-                            <button class="btn-icon" title="Export">⤓</button>
-                        </div>
-                    </div>
-                    <div class="bar-chart" id="salesChart"></div>
-                    <div class="chart-legend">
-                        <div class="legend-item">
-                            <div class="legend-color" style="background: linear-gradient(180deg, #00A651 0%, #00d66a 100%);"></div>
-                            <span>Today</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-color" style="background: linear-gradient(180deg, #6B6B6B 0%, #999999 100%);"></div>
-                            <span>Yesterday</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Basket Analysis -->
-                <div class="card">
-                    <div class="card-header">
-                        <div>
-                            <div class="card-title">Basket Analysis</div>
-                            <div class="card-subtitle">Key transaction metrics</div>
-                        </div>
-                    </div>
-                    <div class="basket-chart" id="basketChart"></div>
-                </div>
-            </div>
-
-            <!-- Bottom Row: Sales Status and Inventory Health -->
-            <div class="dashboard-grid two-col">
-                <!-- Sales Status Table -->
-                <div class="card">
-                    <div class="card-header">
-                        <div>
-                            <div class="card-title">Sales Status</div>
-                            <div class="card-subtitle">Performance tracking</div>
-                        </div>
-                    </div>
-                    <table class="data-table" id="salesTable">
-                        <thead>
-                            <tr>
-                                <th class="sortable" data-column="period">Period</th>
-                                <th class="sortable" data-column="onTarget">On Target</th>
-                                <th class="sortable" data-column="notTarget">Not on Target</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="salesTableBody"></tbody>
-                    </table>
-                </div>
-
-                <!-- Inventory Health -->
-                <div class="card">
-                    <div class="card-header">
-                        <div>
-                            <div class="card-title">Inventory Health</div>
-                            <div class="card-subtitle">Stock status distribution</div>
-                        </div>
-                    </div>
-                    <div class="donut-container">
-                        <div class="donut-chart-wrapper">
-                            <svg class="donut-chart" id="donutChart" viewBox="0 0 200 200"></svg>
-                            <div class="donut-center">
-                                <div class="donut-center-value">85%</div>
-                                <div class="donut-center-label">Healthy</div>
-                            </div>
-                        </div>
-                        <div class="donut-legend" id="donutLegend"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="tooltip" id="tooltip"></div>
-
-    <script>
-        // Data
-        const salesByHour = [
-            {hour: "06:00", today: 1200, yesterday: 1100},
-            {hour: "08:00", today: 3500, yesterday: 3200},
-            {hour: "12:00", today: 8500, yesterday: 7900},
-            {hour: "14:00", today: 7200, yesterday: 6800},
-            {hour: "18:00", today: 9200, yesterday: 8900},
-            {hour: "20:00", today: 4500, yesterday: 4200},
-            {hour: "22:00", today: 1800, yesterday: 1600}
-        ];
-
-        const basketMetrics = [
-            {category: "Avg Basket Size", value: 48.50, target: 45.00, unit: "$"},
-            {category: "Items/Transaction", value: 12.3, target: 11.5, unit: ""},
-            {category: "High-Value Items", value: 28, target: 25, unit: ""}
-        ];
-
-        const salesStatus = [
-            {period: "Today", onTarget: 45672, notTarget: 12345},
-            {period: "Yesterday", onTarget: 42890, notTarget: 15678},
-            {period: "Week YTD", onTarget: 1200000, notTarget: 250000}
-        ];
-
-        const inventoryHealth = [
-            {category: "Optimal", value: 60, color: "#00A651"},
-            {category: "Low Stock", value: 25, color: "#FF9500"},
-            {category: "Overstock", value: 10, color: "#FF3B30"},
-            {category: "Near Exp", value: 5, color: "#AF52DE"}
-        ];
-
-        // Sales Volume Chart
-        function createSalesChart() {
-            const container = document.getElementById('salesChart');
-            const maxValue = Math.max(...salesByHour.flatMap(d => [d.today, d.yesterday]));
-
-            // Create Y-axis
-            const yAxis = document.createElement('div');
-            yAxis.className = 'bar-chart-y-axis';
-            const yAxisValues = [
-                Math.round(maxValue / 1000) + 'k',
-                Math.round(maxValue / 2000) + 'k',
-                '0'
-            ];
-            yAxisValues.forEach(value => {
-                const label = document.createElement('div');
-                label.textContent = '$' + value;
-                yAxis.appendChild(label);
-            });
-            container.appendChild(yAxis);
-
-            salesByHour.forEach((data, index) => {
-                const barGroup = document.createElement('div');
-                barGroup.className = 'bar-group';
-                barGroup.style.animationDelay = `${index * 0.1}s`;
-
-                const barsWrapper = document.createElement('div');
-                barsWrapper.className = 'bars-wrapper';
-
-                // Today bar
-                const todayBar = document.createElement('div');
-                todayBar.className = 'bar';
-                todayBar.style.height = `${(data.today / maxValue) * 100}%`;
-                todayBar.innerHTML = `<span class="bar-value">$${(data.today / 1000).toFixed(1)}k</span>`;
-                todayBar.style.animationDelay = `${index * 0.1}s`;
-
-                // Yesterday bar
-                const yesterdayBar = document.createElement('div');
-                yesterdayBar.className = 'bar yesterday';
-                yesterdayBar.style.height = `${(data.yesterday / maxValue) * 100}%`;
-                yesterdayBar.innerHTML = `<span class="bar-value">$${(data.yesterday / 1000).toFixed(1)}k</span>`;
-                yesterdayBar.style.animationDelay = `${index * 0.1 + 0.05}s`;
-
-                barsWrapper.appendChild(todayBar);
-                barsWrapper.appendChild(yesterdayBar);
-
-                const label = document.createElement('div');
-                label.className = 'bar-label';
-                label.textContent = data.hour;
-
-                barGroup.appendChild(barsWrapper);
-                barGroup.appendChild(label);
-                container.appendChild(barGroup);
-            });
-        }
-
-        // Basket Analysis Chart with Horizontal Bars
-        function createBasketChart() {
-            const container = document.getElementById('basketChart');
-
-            basketMetrics.forEach((metric, index) => {
-                const metricDiv = document.createElement('div');
-                metricDiv.className = 'basket-metric';
-                metricDiv.style.animationDelay = `${index * 0.15}s`;
-                metricDiv.style.animation = 'slideIn 0.5s ease-out backwards';
-
-                const percentage = (metric.value / metric.target) * 100;
-                const isOverTarget = percentage >= 100;
-                const targetPosition = 100; // Target line at 100%
-                const barWidth = Math.min(percentage, 150); // Cap at 150% for display
-
-                metricDiv.innerHTML = `
-                    <div class="basket-metric-label">
-                        <span class="basket-metric-name">${metric.category}</span>
-                        <span class="basket-metric-target">Target: ${metric.unit}${metric.target.toFixed(metric.unit === '$' ? 2 : 1)}</span>
-                    </div>
-                    <div class="basket-bar-container">
-                        <div class="basket-bar-wrapper">
-                            <div class="basket-bar" style="width: ${barWidth}%">
-                                <span class="basket-bar-value">${metric.unit}${metric.value.toFixed(metric.unit === '$' ? 2 : 1)}</span>
-                            </div>
-                            <div class="basket-bar-target-line" style="left: ${targetPosition}%"></div>
-                        </div>
-                        <span class="basket-status-badge ${isOverTarget ? 'success' : 'warning'}">
-                            ${isOverTarget ? '✓ ABOVE TARGET' : '⚠ BELOW TARGET'}
-                        </span>
-                    </div>
-                `;
-
-                container.appendChild(metricDiv);
-            });
-        }
-
-        // Sales Status Table
-        let tableSortColumn = null;
-        let tableSortDirection = 'asc';
-
-        function createSalesTable() {
-            const tbody = document.getElementById('salesTableBody');
-            let data = [...salesStatus];
-
-            // Apply sorting
-            if (tableSortColumn) {
-                data.sort((a, b) => {
-                    let aVal = a[tableSortColumn];
-                    let bVal = b[tableSortColumn];
-
-                    if (typeof aVal === 'string') {
-                        aVal = aVal.toLowerCase();
-                        bVal = bVal.toLowerCase();
-                    }
-
-                    if (tableSortDirection === 'asc') {
-                        return aVal > bVal ? 1 : -1;
-                    } else {
-                        return aVal < bVal ? 1 : -1;
-                    }
-                });
-            }
-
-            tbody.innerHTML = '';
-
-            data.forEach((row, index) => {
-                const total = row.onTarget + row.notTarget;
-                const percentage = (row.onTarget / total * 100).toFixed(1);
-                const isGood = percentage >= 75;
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${row.period}</td>
-                    <td class="value-positive">$${formatNumber(row.onTarget)}</td>
-                    <td class="value-negative">$${formatNumber(row.notTarget)}</td>
-                    <td>
-                        <span class="status-badge ${isGood ? 'success' : 'warning'}">
-                            ${percentage}% On Target
-                        </span>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function formatNumber(num) {
-            if (num >= 1000000) {
-                return (num / 1000000).toFixed(1) + 'M';
-            } else if (num >= 1000) {
-                return (num / 1000).toFixed(1) + 'K';
-            }
-            return num.toLocaleString();
-        }
-
-        function setupTableSorting() {
-            document.querySelectorAll('#salesTable th.sortable').forEach(th => {
-                th.addEventListener('click', () => {
-                    const column = th.getAttribute('data-column');
-
-                    if (tableSortColumn === column) {
-                        tableSortDirection = tableSortDirection === 'asc' ? 'desc' : 'asc';
-                    } else {
-                        tableSortColumn = column;
-                        tableSortDirection = 'asc';
-                    }
-
-                    document.querySelectorAll('#salesTable th').forEach(header => {
-                        header.classList.remove('sort-asc', 'sort-desc');
-                    });
-                    th.classList.add(tableSortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
-
-                    createSalesTable();
-                });
-            });
-        }
-
-        // Donut Chart
-        function createDonutChart() {
-            const svg = document.getElementById('donutChart');
-            const centerX = 100;
-            const centerY = 100;
-            const radius = 80;
-            const innerRadius = 55;
-
-            let currentAngle = 0;
-
-            inventoryHealth.forEach((item, index) => {
-                const angle = (item.value / 100) * 360;
-                const endAngle = currentAngle + angle;
-
-                const path = createDonutSegment(centerX, centerY, radius, innerRadius, currentAngle, endAngle);
-
-                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                g.setAttribute('class', 'donut-segment');
-
-                const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                pathElement.setAttribute('d', path);
-                pathElement.setAttribute('fill', item.color);
-                pathElement.style.cursor = 'pointer';
-                pathElement.style.transition = 'opacity 0.3s';
-                pathElement.style.animation = `growSegment 0.8s ease-out ${index * 0.1}s backwards`;
-
-                // Add hover effect
-                pathElement.addEventListener('mouseenter', function() {
-                    this.style.opacity = '0.8';
-                });
-                pathElement.addEventListener('mouseleave', function() {
-                    this.style.opacity = '1';
-                });
-
-                g.appendChild(pathElement);
-                svg.appendChild(g);
-
-                currentAngle = endAngle;
-            });
-
-            // Create legend
-            const legendContainer = document.getElementById('donutLegend');
-            inventoryHealth.forEach((item, index) => {
-                const legendItem = document.createElement('div');
-                legendItem.className = 'donut-legend-item';
-                legendItem.style.animation = `slideIn 0.5s ease-out ${index * 0.1 + 0.3}s backwards`;
-
-                legendItem.innerHTML = `
-                    <div class="donut-legend-left">
-                        <div class="donut-legend-color" style="background: ${item.color}"></div>
-                        <span class="donut-legend-name">${item.category}</span>
-                    </div>
-                    <span class="donut-legend-value">${item.value}%</span>
-                `;
-
-                legendContainer.appendChild(legendItem);
-            });
-        }
-
-        function createDonutSegment(cx, cy, radius, innerRadius, startAngle, endAngle) {
-            const start = polarToCartesian(cx, cy, radius, startAngle);
-            const end = polarToCartesian(cx, cy, radius, endAngle);
-            const innerStart = polarToCartesian(cx, cy, innerRadius, startAngle);
-            const innerEnd = polarToCartesian(cx, cy, innerRadius, endAngle);
-
-            const largeArc = endAngle - startAngle > 180 ? 1 : 0;
-
-            return [
-                `M ${start.x} ${start.y}`,
-                `A ${radius} ${radius} 0 ${largeArc} 1 ${end.x} ${end.y}`,
-                `L ${innerEnd.x} ${innerEnd.y}`,
-                `A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${innerStart.x} ${innerStart.y}`,
-                'Z'
-            ].join(' ');
-        }
-
-        function polarToCartesian(cx, cy, radius, angleInDegrees) {
-            const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
-            return {
-                x: cx + (radius * Math.cos(angleInRadians)),
-                y: cy + (radius * Math.sin(angleInRadians))
-            };
-        }
-
-        // Add animation for donut segments
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes growSegment {
-                from {
-                    opacity: 0;
-                    transform: scale(0.8);
-                }
-                to {
-                    opacity: 1;
-                    transform: scale(1);
-                }
-            }
-        `;
-        document.head.appendChild(style);
-
-        // Initialize
-        function init() {
-            createSalesChart();
-            createBasketChart();
-            createSalesTable();
-            setupTableSorting();
-            createDonutChart();
-        }
-
-        init();
-    </script>
+<div class="dashboard-container">
+<!-- Main Content -->
+<div class="main-content">
+<!-- Header -->
+<div class="dashboard-header">
+<h1 class="dashboard-title">Store #1234 Overview</h1>
+<div class="dashboard-meta">
+<span>📅 Feb 11, 2026</span>
+<span>📍 Toronto Downtown</span>
+<span>⏱ Updated 14:00</span>
+</div>
+</div>
+<!-- Quick Stats Row -->
+<div class="dashboard-grid">
+<!-- Daily Sales Card -->
+<div class="card">
+<div class="card-header">
+<div>
+<div class="card-title">Daily Sales</div>
+<div class="card-subtitle">vs Target ($45,000)</div>
+</div>
+<span class="status-pill pill-green">On Track</span>
+</div>
+<div class="metric-highlight">$38,450</div>
+<div class="metric-trend trend-up">
+<span>▲ 4.2%</span> vs Last Week
+</div>
+<div style="margin-top:15px;">
+<div class="h-chart-row">
+<div class="h-chart-labels">
+<span>Progress</span>
+<span>85%</span>
+</div>
+<div class="h-chart-bar-bg">
+<div class="h-chart-bar-fill" style="width: 85%;"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Labour Costs Card -->
+<div class="card">
+<div class="card-header">
+<div>
+<div class="card-title">Labour Cost</div>
+<div class="card-subtitle">% of Sales</div>
+</div>
+<span class="status-pill pill-orange">Review</span>
+</div>
+<div class="metric-highlight" style="color:#E65100">12.8%</div>
+<div class="metric-trend trend-down">
+<span>▼ 0.3%</span> Over Target (12.5%)
+</div>
+<div style="margin-top:15px;">
+<div class="h-chart-row">
+<div class="h-chart-labels">
+<span>Budget Used</span>
+<span>92%</span>
+</div>
+<div class="h-chart-bar-bg">
+<div class="h-chart-bar-fill" style="width: 92%; background: linear-gradient(90deg, #FF9800, #E65100);"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Department Performance Grid -->
+<div class="dashboard-grid">
+<!-- Dept Breakdown Table -->
+<div class="card">
+<div class="card-header">
+<div class="card-title">Dept. Performance</div>
+</div>
+<table class="compact-table">
+<thead>
+<tr>
+<th>Department</th>
+<th>Sales</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Grocery</td>
+<td>$15,230</td>
+<td><span class="status-pill pill-green">Target</span></td>
+</tr>
+<tr>
+<td>Produce</td>
+<td>$8,450</td>
+<td><span class="status-pill pill-green">Target</span></td>
+</tr>
+<tr>
+<td>Meat/Seafood</td>
+<td>$6,120</td>
+<td><span class="status-pill pill-orange">-2.1%</span></td>
+</tr>
+<tr>
+<td>Bakery</td>
+<td>$3,200</td>
+<td><span class="status-pill pill-red">-5.4%</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Inventory Health Donut -->
+<div class="card">
+<div class="card-header">
+<div class="card-title">Inventory Health</div>
+</div>
+<div class="donut-wrapper">
+<svg width="100" height="100" viewBox="0 0 36 36">
+<path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#eee" stroke-width="3" />
+<path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831" fill="none" stroke="#469E41" stroke-width="3" stroke-dasharray="75, 100" />
+<path d="M18 2.0845 a 15.9155 15.9155 0 0 1 -11.5 4.5" fill="none" stroke="#D32F2F" stroke-width="3" stroke-dasharray="10, 100" />
+<text x="18" y="20.35" class="percentage" text-anchor="middle" font-size="8" font-weight="bold" fill="#333">85%</text>
+</svg>
+<div class="donut-legend">
+<div class="legend-row"><span class="dot color-primary"></span>In Stock (85%)</div>
+<div class="legend-row"><span class="dot color-alert"></span>Low Stock (10%)</div>
+<div class="legend-row"><span class="dot" style="background:#ddd"></span>Overstock (5%)</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+// Simple animation for bars on load
+window.onload = function() {
+const bars = document.querySelectorAll('.h-chart-bar-fill');
+bars.forEach(bar => {
+const width = bar.style.width;
+bar.style.width = '0';
+setTimeout(() => {
+bar.style.width = width;
+}, 300);
+});
+};
+</script>
 </body>
 </html>
