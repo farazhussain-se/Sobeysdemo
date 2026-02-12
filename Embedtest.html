@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staffbase Live Widget</title>
+    <style>
+        :root {
+            --sb-primary: #00A651; /* Staffbase/Brand Green */
+            --sb-dark: #1A1A1A;
+            --sb-red: #E31837;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Widget Container */
+        .sb-live-widget {
+            width: 100%;
+            max-width: 800px;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin: 20px;
+        }
+
+        /* Header */
+        .sb-live-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .sb-logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--sb-dark);
+        }
+
+        .sb-logo-icon {
+            width: 24px;
+            height: 24px;
+            fill: var(--sb-primary);
+        }
+
+        .sb-live-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .live-badge {
+            background-color: var(--sb-red);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            animation: pulse 2s infinite;
+        }
+
+        .viewer-count {
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Video Container (Aspect Ratio 16:9) */
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            background-color: black;
+        }
+
+        .video-iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* Join Overlay */
+        .join-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url('https://img.youtube.com/vi/Wpxv-8nG8ec/maxresdefault.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+        }
+
+        .join-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .play-button {
+            width: 64px;
+            height: 64px;
+            background-color: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(4px);
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .play-icon {
+            width: 24px;
+            height: 24px;
+            fill: white;
+            margin-left: 4px; /* Optical center adjustment */
+        }
+
+        .join-overlay:hover .play-button {
+            transform: scale(1.1);
+            background-color: var(--sb-primary);
+            border-color: var(--sb-primary);
+        }
+
+        .join-text {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sb-live-widget">
+        <!-- Header -->
+        <div class="sb-live-header">
+            <div class="sb-logo-area">
+                <!-- Simple Staffbase-like Icon -->
+                <svg class="sb-logo-icon" viewBox="0 0 24 24">
+                    <path d="M12 2L2 22h20L12 2zm0 4l6 12H6l6-12z"/> 
+                </svg>
+                Staffbase Live
+            </div>
+            <div class="sb-live-status">
+                <span class="viewer-count">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>ircle cx="12" cy="12" r="3"/></svg>
+                    1.2k
+                </span>
+                <span class="live-badge">LIVE</span>
+            </div>
+        </div>
+
+        <!-- Video Area -->
+        <div class="video-wrapper">
+            <!-- Iframe (Initially empty or src without autoplay to save data) -->
+            <iframe id="yt-player" class="video-iframe" 
+                title="YouTube video player" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowfullscreen>
+            </iframe>
+
+            <!-- Overlay -->
+            <div class="join-overlay" id="overlay" onclick="startStream()">
+                <div class="play-button">
+                    <svg class="play-icon" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                </div>
+                <div class="join-text">Join Livestream</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function startStream() {
+            const overlay = document.getElementById('overlay');
+            const player = document.getElementById('yt-player');
+            const videoId = "Wpxv-8nG8ec";
+            
+            // Add Fade out effect
+            overlay.classList.add('hidden');
+
+            // Load the actual video with autoplay enabled
+            // We use 'rel=0' to not show related videos from other channels
+            player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+        }
+    </script>
+</body>
+</html>
