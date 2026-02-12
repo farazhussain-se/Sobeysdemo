@@ -7,14 +7,13 @@
 <style>
 :root {
 /* SOBEYS BRAND COLORS */
---sobeys-green-dark: #0E5A19; /* Camarone Green - Main Brand Color */
---sobeys-green-light: #469E41; /* Apple Green - Secondary/Accent */
---sobeys-cream: #F4F1EA; /* Warm background often used in stores */
+--sobeys-green-dark: #0E5A19;
+--sobeys-green-light: #469E41;
+--sobeys-cream: #F4F1EA;
 --text-dark: #1A1A1A;
 --white: #ffffff;
 --grey-light: #F3F4F6;
---alert-red: #D32F2F; /* For notifications */
-/* FONT SIMULATION - Sobeys Sans is custom, Trebuchet MS/Fira Sans are close web-safe matches */
+--alert-red: #D32F2F;
 --font-stack: "Trebuchet MS", "Fira Sans", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 body {
@@ -26,81 +25,111 @@ margin: 0;
 .widget-card {
 background-color: var(--white);
 width: 100%;
-max-width: 560px;
-border-radius: 8px; /* Softer, friendlier Sobeys feel */
+max-width: 450px; /* Mobile width constraint */
+border-radius: 8px;
 border: 1px solid #e5e7eb;
-padding: 24px;
 box-sizing: border-box;
 position: relative;
-box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 overflow: hidden;
+transition: all 0.3s ease;
+margin: 20px auto;
 }
-/* --- HEADER SECTION --- */
+
+/* --- HEADER SECTION (Always Visible) --- */
 .header-row {
 display: flex;
 justify-content: space-between;
 align-items: center;
-margin-bottom: 20px;
-border-bottom: 1px solid #f0f0f0;
-padding-bottom: 15px;
+padding: 16px 20px;
+background: var(--white);
+cursor: pointer; /* Clickable for collapse */
+user-select: none;
+}
+.header-left {
+display: flex;
+align-items: center;
+gap: 10px;
 }
 .header-title {
-font-size: 16px;
+font-size: 14px;
 font-weight: 700;
 text-transform: uppercase;
 letter-spacing: 0.5px;
-display: flex;
-align-items: center;
-gap: 8px;
-color: var(--sobeys-green-dark); /* Sobeys Green */
+color: var(--sobeys-green-dark);
 }
 .status-badge {
 background-color: var(--sobeys-green-light);
 color: var(--white);
-font-size: 12px;
+font-size: 11px;
 padding: 4px 10px;
 border-radius: 12px;
 font-weight: 600;
 }
+/* Chevron Rotation */
+.chevron {
+transition: transform 0.3s ease;
+color: var(--text-dark);
+}
+.widget-card.collapsed .chevron {
+transform: rotate(-90deg);
+}
+
+/* --- COLLAPSIBLE CONTENT --- */
+.widget-content {
+max-height: 1000px; /* Arbitrary high height for transition */
+opacity: 1;
+padding: 0 20px 20px 20px;
+transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+overflow: hidden;
+}
+.widget-card.collapsed .widget-content {
+max-height: 0;
+opacity: 0;
+padding-bottom: 0;
+}
+
 /* --- TIME & INFO --- */
 .shift-time-large {
-font-size: 38px; /* Slightly smaller for friendlier look */
+font-size: 32px;
 font-weight: 700;
 color: var(--text-dark);
 line-height: 1;
 margin-bottom: 6px;
+margin-top: 10px;
 }
 .shift-location {
-font-size: 15px;
+font-size: 14px;
 font-weight: 500;
 color: #6B7280;
 display: flex;
 align-items: center;
 gap: 5px;
 }
+
 /* --- TEAM SECTION --- */
 .section-label {
 display: flex;
 align-items: center;
 gap: 6px;
-font-size: 13px;
+font-size: 12px;
 font-weight: 700;
 text-transform: uppercase;
 color: var(--sobeys-green-dark);
-margin-top: 25px;
-margin-bottom: 12px;
+margin-top: 20px;
+margin-bottom: 10px;
 }
 .team-list {
 display: flex;
-gap: 8px;
+gap: 6px;
 flex-wrap: wrap;
 }
 .team-badge {
 background-color: var(--sobeys-cream);
 color: var(--sobeys-green-dark);
 border: 1px solid #e0e0e0;
-padding: 8px 12px;
-font-size: 13px;
+padding: 6px 10px;
+font-size: 12px;
 font-weight: 500;
 border-radius: 6px;
 display: flex;
@@ -111,28 +140,16 @@ background-color: var(--sobeys-green-dark);
 color: var(--white);
 border-color: var(--sobeys-green-dark);
 }
-.bullet { margin: 0 6px; opacity: 0.4; }
-/* --- WEEK / CALENDAR SECTION --- */
+.bullet { margin: 0 4px; opacity: 0.4; }
+
+/* --- CALENDAR SECTION --- */
 .week-header {
 display: flex;
 justify-content: space-between;
 align-items: flex-end;
-margin-top: 30px;
-margin-bottom: 12px;
+margin-top: 25px;
+margin-bottom: 10px;
 }
-.btn-swap-text {
-background: none;
-border: none;
-cursor: pointer;
-font-size: 13px;
-font-weight: 600;
-display: flex;
-align-items: center;
-gap: 5px;
-padding: 0;
-color: var(--sobeys-green-light);
-}
-.btn-swap-text:hover { text-decoration: underline; }
 .calendar-grid {
 display: grid;
 grid-template-columns: repeat(4, 1fr);
@@ -142,28 +159,33 @@ gap: 8px;
 background-color: var(--white);
 border: 1px solid #e5e7eb;
 color: var(--text-dark);
-padding: 12px 5px;
+padding: 10px 4px;
 text-align: center;
 display: flex;
 flex-direction: column;
 justify-content: center;
 align-items: center;
-min-height: 90px;
+min-height: 80px;
 border-radius: 6px;
 cursor: pointer;
 transition: all 0.2s ease;
 }
-.day-card:hover { border-color: var(--sobeys-green-light); }
+.day-card:hover { border-color: var(--sobeys-green-light); transform: translateY(-2px); }
 .day-card.active {
 background-color: var(--sobeys-green-dark);
 color: var(--white);
 border-color: var(--sobeys-green-dark);
 }
-.day-name { font-size: 11px; text-transform: uppercase; margin-bottom: 4px; font-weight: 600; }
-.day-number { font-size: 24px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
-.day-hours { font-size: 10px; font-weight: 500; }
-/* OFF STATE */
-.day-card.off { background-color: #f9fafb; color: #9ca3af; }
+.day-card.selected-for-swap {
+border: 2px solid var(--sobeys-green-light);
+background-color: #e8f5e9;
+color: var(--text-dark);
+}
+.day-name { font-size: 10px; text-transform: uppercase; margin-bottom: 4px; font-weight: 600; }
+.day-number { font-size: 20px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+.day-hours { font-size: 9px; font-weight: 500; }
+.day-card.off { background-color: #f9fafb; color: #9ca3af; pointer-events: none; }
+
 /* --- MODAL (SWAP REQUEST) --- */
 .modal-backdrop {
 position: absolute;
@@ -187,81 +209,229 @@ box-sizing: border-box;
 transform: translateY(100%);
 transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 border-top: 4px solid var(--sobeys-green-dark);
-border-bottom-left-radius: 8px;
-border-bottom-right-radius: 8px;
 }
 .modal-backdrop.active .modal-content { transform: translateY(0); }
-.modal-header h2 { margin: 0; font-size: 20px; color: var(--sobeys-green-dark); }
-.modal-detail { margin-top: 15px; font-size: 14px; line-height: 1.5; color: #4b5563; }
+.modal-header h2 { margin: 0; font-size: 18px; color: var(--sobeys-green-dark); margin-bottom: 15px; }
+
+/* Swap Form */
+.swap-form-group { margin-bottom: 15px; }
+.swap-label { font-size: 12px; font-weight: 600; color: #6b7280; display: block; margin-bottom: 5px; }
+.swap-select {
+width: 100%;
+padding: 10px;
+border: 1px solid #d1d5db;
+border-radius: 4px;
+font-family: inherit;
+font-size: 14px;
+}
+.swap-details {
+font-size: 13px;
+color: #374151;
+background: #f3f4f6;
+padding: 10px;
+border-radius: 4px;
+margin-bottom: 15px;
+}
+
+/* Success Animation */
+.success-message {
+display: none;
+text-align: center;
+padding: 20px 0;
+animation: fadeIn 0.5s;
+}
+.success-icon {
+width: 40px; height: 40px;
+background: var(--sobeys-green-light);
+color: white;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+margin: 0 auto 10px auto;
+font-size: 20px;
+}
+.approval-text { font-size: 14px; font-weight: 600; color: var(--sobeys-green-dark); }
+.manager-note { font-size: 11px; color: #6b7280; margin-top: 5px; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
 .btn-confirm-swap {
 background-color: var(--sobeys-green-dark);
 color: var(--white);
 width: 100%;
 border: none;
 padding: 12px;
-font-size: 15px;
+font-size: 14px;
 font-weight: 600;
-margin-top: 20px;
+margin-top: 10px;
 cursor: pointer;
 border-radius: 4px;
 transition: background 0.2s;
 }
 .btn-confirm-swap:hover { background-color: #0a4012; }
-.btn-confirm-swap:disabled { background-color: #9ca3af; cursor: not-allowed; }
 .btn-close {
 background: transparent; border: 1px solid #d1d5db; color: #6b7280;
 width: 100%; padding: 10px; margin-top: 10px; cursor: pointer;
 border-radius: 4px; font-weight: 500;
 }
-/* Loader */
-.spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; }
-@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
-<div class="widget-card">
-<div class="header-row">
-<div class="header-title">
-<!-- Simple calendar icon svg -->
-<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-MON CALENDRIER (MY SCHEDULE)
+
+<div class="widget-card" id="shiftWidget">
+<!-- HEADER (Toggle Trigger) -->
+<div class="header-row" onclick="toggleWidget()">
+<div class="header-left">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+<span class="header-title">MON CALENDRIER (MY SCHEDULE)</span>
 </div>
-<div class="status-badge">Dans 2h (In 2h)</div>
+<div style="display:flex; align-items:center; gap:10px;">
+<div class="status-badge">Dans 2h</div>
+<!-- Chevron Icon -->
+<svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
 </div>
+</div>
+
+<!-- EXPANDABLE CONTENT -->
+<div class="widget-content">
 <div class="shift-time-large">07:00 - 15:30</div>
 <div class="shift-location">
-<!-- Map pin icon -->
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>ircle cx="12" cy="10" r="3"></circle></svg>
 Sobeys - Épicerie (Grocery)
 </div>
-<div class="section-label">
-L'ÉQUIPE (TEAM ON SHIFT)
-</div>
+
+<div class="section-label">L'ÉQUIPE (TEAM ON SHIFT)</div>
 <div class="team-list">
 <div class="team-badge">Marc D.<span class="bullet">•</span>Gérant</div>
 <div class="team-badge">Sarah L.<span class="bullet">•</span>Commis</div>
 <div class="team-badge is-me">Moi (You)<span class="bullet">•</span>Commis</div>
 <div class="team-badge">Alex P.<span class="bullet">•</span>Commis</div>
 </div>
+
 <div class="week-header">
-<div class="section-label" style="margin:0;">CETTE SEMAINE (THIS WEEK)</div>
-<button class="btn-swap-text" onclick="openSwapModal()">
-<!-- Swap icon -->
-<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg>
-Échanger (Request Swap)
-</button>
+<div class="section-label" style="margin:0;">CETTE SEMAINE (CLICK TO SWAP)</div>
 </div>
 <div class="calendar-grid" id="dynamicCalendar">
+<!-- Generated by JS -->
 </div>
+</div>
+
+<!-- SWAP MODAL -->
 <div class="modal-backdrop" id="swapModal">
 <div class="modal-content">
+<div id="swapFormView">
 <div class="modal-header">
-<h2>Confirmer l'échange (Confirm Swap)</h2>
+<h2>Échanger Quart (Swap Shift)</h2>
 </div>
-<div class="modal-detail">
-Vous demandez à échanger votre quart de travail du
-<strong style="color:var(--sobeys-green-dark)" id="modalDateDisplay">Aujourd'hui</strong>.<br>
-La demande sera envoyée à <strong>Marc D.</strong> pour approbation.
+<div class="swap-details">
+<strong>Shift:</strong> <span id="modalShiftDate">Fri, Feb 16</span><br>
+<span id="modalShiftTime">09:00 - 17:00</span>
+</div>
+<div class="swap-form-group">
+<label class="swap-label">Échanger avec (Swap with):</label>
+<select class="swap-select" id="swapPartner">
+<option value="Sarah L.">Sarah L. (Commis)</option>
+<option value="Alex P.">Alex P. (Commis)</option>
+<option value="Open Pool">Afficher au tableau (Post to Board)</option>
+</select>
 </div>
 <button id="btnConfirm" class="btn-confirm-swap" onclick="processSwap()">Envoyer la demande (Send)</button>
-<button class="btn-close" onclick="closeSwapM
+<button class="btn-close" onclick="closeSwapModal()">Annuler (Cancel)</button>
+</div>
+
+<!-- SUCCESS STATE -->
+<div id="swapSuccessView" class="success-message">
+<div class="success-icon">✓</div>
+<div class="approval-text">Approuvé! (Approved)</div>
+<div class="manager-note">Approuvé automatiquement par Marc D.</div>
+<button class="btn-close" onclick="closeSwapModal()">Fermer (Close)</button>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+// --- 1. COLLAPSE LOGIC ---
+const widget = document.getElementById('shiftWidget');
+function toggleWidget() {
+widget.classList.toggle('collapsed');
+}
+
+// --- 2. CALENDAR GENERATION ---
+function initCalendar() {
+const container = document.getElementById('dynamicCalendar');
+const today = new Date();
+const days = ['DIM','LUN','MAR','MER','JEU','VEN','SAM'];
+let html = '';
+
+// Generate 4 days: Yesterday (-1) to +2
+for (let i = -1; i < 3; i++) {
+let d = new Date();
+d.setDate(today.getDate() + i);
+let dayName = days[d.getDay()];
+let dateNum = d.getDate();
+
+// Styles
+let isToday = (i === 0);
+let activeClass = isToday ? 'active' : '';
+let timeText = isToday ? '07:00-15:30' : (i===-1 ? 'OFF' : (i===1 ? '12:00-20:00' : '09:00-17:00'));
+let offClass = (timeText === 'OFF') ? 'off' : '';
+
+// Render
+html += `
+<div class="day-card ${activeClass} ${offClass}" onclick="openSwapModal('${dayName} ${dateNum}', '${timeText}', event)">
+<div class="day-name">${dayName}</div>
+<div class="day-number">${dateNum}</div>
+<div class="day-hours">${timeText}</div>
+</div>
+`;
+}
+container.innerHTML = html;
+}
+
+// --- 3. SWAP LOGIC ---
+const modal = document.getElementById('swapModal');
+const formView = document.getElementById('swapFormView');
+const successView = document.getElementById('swapSuccessView');
+const btnConfirm = document.getElementById('btnConfirm');
+
+function openSwapModal(dateStr, timeStr, e) {
+e.stopPropagation(); // Prevent collapse when clicking calendar
+// Don't open for "OFF" days (simple logic check)
+if(timeStr === 'OFF') return;
+
+// Set content
+document.getElementById('modalShiftDate').innerText = dateStr;
+document.getElementById('modalShiftTime').innerText = timeStr;
+
+// Reset Views
+formView.style.display = 'block';
+successView.style.display = 'none';
+btnConfirm.innerHTML = 'Envoyer la demande (Send)';
+btnConfirm.disabled = false;
+
+modal.classList.add('active');
+}
+
+function closeSwapModal() {
+modal.classList.remove('active');
+}
+
+async function processSwap() {
+btnConfirm.disabled = true;
+btnConfirm.innerHTML = 'Envoi... (Sending)';
+
+// Simulate API delay
+await new Promise(r => setTimeout(r, 800));
+
+// Show "Pending" state briefly if you wanted, but we'll go straight to Auto-Approve simulation
+formView.style.display = 'none';
+successView.style.display = 'block';
+}
+
+// Init
+initCalendar();
+</script>
+</body>
+</html>
