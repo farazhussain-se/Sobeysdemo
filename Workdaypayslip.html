@@ -3,238 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Workday Payslips Widget</title>
+    <title>Sobeys Workday Payslips</title>
     <style>
-        /* Container scoping to prevent style leakage */
+        /* Sobeys Brand Colors */
+        :root {
+            --sobeys-green: #0E5A19;
+            --sobeys-green-hover: #0a4012;
+            --sobeys-apple-green: #469E41;
+            --sobeys-grey: #6B7280;
+            --sobeys-light-grey: #F3F4F6;
+            --white: #ffffff;
+            --black: #1A1A1A;
+        }
+
+        /* Container */
         #workday-widget-container {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            color: #333;
-            background: #ffffff;
+            color: var(--black);
+            background: var(--white);
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            max-width: 100%;
+            max-width: 400px; /* Mobile width */
             margin: 0 auto;
+            border: 1px solid #e5e7eb;
         }
 
         #workday-widget-container * {
             box-sizing: border-box;
+            user-select: none; /* Prevent text selection for hold effect */
         }
 
-        /* Header Section */
+        /* Header */
         .wday-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 24px;
-            background: #ffffff;
+            padding: 16px 20px;
+            background: var(--white);
             border-bottom: 1px solid #e5e7eb;
+        }
+
+        .wday-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .wday-logo-img {
+            height: 20px; /* Placeholder for Sobeys/Workday Logo */
+            width: auto;
         }
 
         .wday-header h2 {
             margin: 0;
-            font-size: 20px;
-            font-weight: 600;
-            color: #1f2937;
-        }
-
-        .wday-view-all {
-            color: #0875e1;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: color 0.2s ease;
-        }
-
-        .wday-view-all:hover {
-            color: #005cb9;
-            text-decoration: underline;
-        }
-
-        /* Hero Section - Most Recent Payslip */
-        .wday-hero {
-            padding: 24px;
-            background: linear-gradient(135deg, #0875e1 0%, #005cb9 100%);
-            color: #ffffff;
-        }
-
-        .wday-hero-date {
-            font-size: 14px;
-            font-weight: 500;
-            opacity: 0.9;
-            margin-bottom: 8px;
-        }
-
-        .wday-hero-amount {
-            font-size: 36px;
-            font-weight: 700;
-            margin: 8px 0 12px 0;
-            line-height: 1;
-        }
-
-        .wday-hero-label {
-            font-size: 13px;
-            opacity: 0.85;
-            margin-bottom: 16px;
-        }
-
-        .wday-status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        .wday-btn-primary {
-            display: inline-block;
-            padding: 10px 24px;
-            background: #ffffff;
-            color: #005cb9;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-        }
-
-        .wday-btn-primary:hover {
-            background: #f0f9ff;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .wday-btn-primary:active {
-            transform: translateY(0);
-        }
-
-        /* Recent History Section */
-        .wday-history {
-            padding: 24px;
-        }
-
-        .wday-history-title {
             font-size: 16px;
-            font-weight: 600;
-            color: #1f2937;
-            margin: 0 0 16px 0;
-        }
-
-        .wday-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .wday-table thead {
-            background: #f9fafb;
-        }
-
-        .wday-table th {
-            padding: 12px 8px;
-            text-align: left;
-            font-size: 12px;
-            font-weight: 600;
-            color: #656565;
+            font-weight: 700;
+            color: var(--sobeys-green);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        .wday-table td {
-            padding: 16px 8px;
-            font-size: 14px;
-            color: #374151;
-            border-top: 1px solid #e5e7eb;
-        }
-
-        .wday-table tbody tr {
-            transition: background-color 0.15s ease;
-        }
-
-        .wday-table tbody tr:hover {
-            background: #f9fafb;
-        }
-
-        .wday-table .wday-amount {
-            font-weight: 600;
-            color: #1f2937;
-        }
-
-        .wday-icon-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 4px;
-            display: inline-flex;
-            align-items: center;
+        /* Privacy Cover */
+        .privacy-cover {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, var(--sobeys-green) 0%, #084010 100%);
+            display: flex;
+            flex-direction: column;
             justify-content: center;
-            border-radius: 4px;
-            transition: background-color 0.2s ease;
+            align-items: center;
+            color: white;
+            z-index: 10;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            cursor: pointer;
         }
 
-        .wday-icon-btn:hover {
-            background: #e5e7eb;
+        .privacy-cover.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.05);
         }
 
-        .wday-icon-btn svg {
-            width: 20px;
-            height: 20px;
-            fill: #656565;
+        .privacy-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .privacy-text {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .privacy-sub {
+            font-size: 10px;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+
+        /* Hero Section */
+        .wday-hero-container {
+            position: relative;
+            height: 160px; /* Fixed height for cover */
+            overflow: hidden;
+            background: var(--sobeys-light-grey);
+        }
+
+        .wday-hero-content {
+            padding: 24px;
+            text-align: center;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wday-hero-date {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--sobeys-grey);
+            margin-bottom: 4px;
+        }
+
+        .wday-hero-amount {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--black);
+            margin: 4px 0;
+            line-height: 1;
+        }
+
+        .wday-hero-label {
+            font-size: 12px;
+            color: var(--sobeys-grey);
+            font-weight: 500;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .wday-btn-details {
+            background-color: var(--sobeys-green);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .wday-btn-details:hover {
+            background-color: var(--sobeys-green-hover);
+        }
+
+        /* History List */
+        .wday-history {
+            padding: 0 16px;
+        }
+
+        .wday-history-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--sobeys-grey);
+            text-transform: uppercase;
+            margin: 16px 0 8px 0;
+            letter-spacing: 0.5px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-left {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .history-date {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--black);
+        }
+
+        .history-period {
+            font-size: 11px;
+            color: var(--sobeys-grey);
+        }
+
+        .history-right {
+            text-align: right;
+        }
+
+        .history-amount {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--black);
+        }
+
+        .history-status {
+            font-size: 10px;
+            color: var(--sobeys-apple-green);
+            font-weight: 600;
+            text-transform: uppercase;
         }
 
         /* Footer */
         .wday-footer {
-            padding: 16px 24px;
             background: #f9fafb;
+            padding: 10px;
+            text-align: center;
             border-top: 1px solid #e5e7eb;
+            font-size: 10px;
+            color: #9ca3af;
             display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            color: #656565;
+            gap: 5px;
         }
 
-        .wday-logo {
-            display: inline-flex;
-            align-items: center;
+        /* Touch feedback animation */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.98); }
+            100% { transform: scale(1); }
         }
 
-        .wday-logo svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 480px) {
-            .wday-header {
-                padding: 16px;
-            }
-
-            .wday-hero {
-                padding: 20px 16px;
-            }
-
-            .wday-hero-amount {
-                font-size: 28px;
-            }
-
-            .wday-history {
-                padding: 20px 16px;
-            }
-
-            .wday-table th,
-            .wday-table td {
-                padding: 10px 6px;
-                font-size: 12px;
-            }
-
-            /* Stack table on very narrow screens */
-            .wday-table .wday-hide-mobile {
-                display: none;
-            }
+        .holding .privacy-cover {
+            transform: scale(0.98);
         }
     </style>
 </head>
@@ -242,107 +250,107 @@
     <div id="workday-widget-container">
         <!-- Header -->
         <div class="wday-header">
-            <h2>Payslips</h2>
-            <a href="#" class="wday-view-all" onclick="handleViewAll(event)">View All</a>
+            <div class="wday-header-left">
+                <!-- Simple SVG Icon representing Payslips -->
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0E5A19" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+                <h2>Ma Paie (My Pay)</h2>
+            </div>
         </div>
 
-        <!-- Hero Section - Most Recent Payslip -->
-        <div class="wday-hero">
-            <div class="wday-hero-date">Pay Date: February 15, 2026</div>
-            <div class="wday-hero-amount">$2,450.00</div>
-            <div class="wday-hero-label">Net Pay</div>
-            <div class="wday-status-badge">✓ Paid</div>
-            <div>
-                <button class="wday-btn-primary" onclick="handleViewDetails(event)">View Details</button>
+        <!-- Hero Section with Privacy Cover -->
+        <div class="wday-hero-container" id="heroContainer">
+            
+            <!-- The Privacy Overlay -->
+            <div class="privacy-cover" id="privacyCover">
+                <div class="privacy-icon">👁️</div>
+                <div class="privacy-text">Maintenir pour révéler</div>
+                <div class="privacy-sub">(Hold to reveal pay)</div>
+            </div>
+
+            <!-- The Revealed Content -->
+            <div class="wday-hero-content">
+                <div class="wday-hero-date">Pay Date: Feb 12, 2026</div>
+                <div class="wday-hero-amount">$1,245.80</div>
+                <div class="wday-hero-label">Net Pay / Paie Nette</div>
+                <button class="wday-btn-details" onclick="alert('Opening Dayforce/Workday details...')">Voir Détails</button>
             </div>
         </div>
 
         <!-- Recent History -->
         <div class="wday-history">
-            <h3 class="wday-history-title">Recent Payments</h3>
-            <table class="wday-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Period</th>
-                        <th class="wday-hide-mobile">Gross Pay</th>
-                        <th>Net Pay</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Feb 1, 2026</td>
-                        <td>Jan 16-31</td>
-                        <td class="wday-hide-mobile">$3,200.00</td>
-                        <td class="wday-amount">$2,380.50</td>
-                        <td>
-                            <button class="wday-icon-btn" onclick="handleDownload(event, 'Feb 1, 2026')" title="Download PDF">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                                </svg>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Jan 15, 2026</td>
-                        <td>Jan 1-15</td>
-                        <td class="wday-hide-mobile">$3,200.00</td>
-                        <td class="wday-amount">$2,420.75</td>
-                        <td>
-                            <button class="wday-icon-btn" onclick="handleDownload(event, 'Jan 15, 2026')" title="Download PDF">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                                </svg>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Dec 31, 2025</td>
-                        <td>Dec 16-31</td>
-                        <td class="wday-hide-mobile">$3,200.00</td>
-                        <td class="wday-amount">$2,395.20</td>
-                        <td>
-                            <button class="wday-icon-btn" onclick="handleDownload(event, 'Dec 31, 2025')" title="Download PDF">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                                </svg>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="wday-history-title">Historique (History)</div>
+            
+            <div class="history-item">
+                <div class="history-left">
+                    <div class="history-date">Jan 29, 2026</div>
+                    <div class="history-period">Jan 12 - Jan 25</div>
+                </div>
+                <div class="history-right">
+                    <div class="history-amount">$1,180.50</div>
+                    <div class="history-status">Déposé (Paid)</div>
+                </div>
+            </div>
+
+            <div class="history-item">
+                <div class="history-left">
+                    <div class="history-date">Jan 15, 2026</div>
+                    <div class="history-period">Dec 29 - Jan 11</div>
+                </div>
+                <div class="history-right">
+                    <div class="history-amount">$1,210.25</div>
+                    <div class="history-status">Déposé (Paid)</div>
+                </div>
+            </div>
         </div>
 
         <!-- Footer -->
         <div class="wday-footer">
-            <div class="wday-logo">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path fill="#0875e1" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
-                </svg>
-            </div>
-            <span>Powered by Workday</span>
+            <span>Powered by Dayforce / Workday</span>
         </div>
     </div>
 
     <script>
-        function handleViewDetails(event) {
-            event.preventDefault();
-            alert('Opening detailed payslip view...\n\nThis would navigate to the full payslip breakdown showing:\n• Gross Pay\n• Deductions (Tax, Benefits, etc.)\n• Net Pay\n• YTD Totals');
+        const container = document.getElementById('heroContainer');
+        const cover = document.getElementById('privacyCover');
+        let pressTimer;
+
+        // Function to reveal
+        function reveal() {
+            cover.classList.add('hidden');
         }
 
-        function handleDownload(event, date) {
-            event.preventDefault();
-            alert(`Downloading PDF for ${date}...\n\nIn production, this would:\n• Fetch the PDF from your payroll system\n• Open in a new tab or trigger download`);
+        // Function to hide
+        function hide() {
+            cover.classList.remove('hidden');
         }
 
-        function handleViewAll(event) {
-            event.preventDefault();
-            alert('Opening full payslip history...\n\nThis would show all available pay periods with filtering and search capabilities.');
-        }
+        // Mouse Events (Desktop)
+        container.addEventListener('mousedown', () => {
+            container.classList.add('holding');
+            reveal();
+        });
 
-        // Optional: Log widget load for analytics
-        console.log('Workday Payslips Widget loaded successfully');
+        container.addEventListener('mouseup', () => {
+            container.classList.remove('holding');
+            hide();
+        });
+
+        container.addEventListener('mouseleave', () => {
+            container.classList.remove('holding');
+            hide();
+        });
+
+        // Touch Events (Mobile)
+        container.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Prevent scrolling while holding
+            container.classList.add('holding');
+            reveal();
+        });
+
+        container.addEventListener('touchend', () => {
+            container.classList.remove('holding');
+            hide();
+        });
     </script>
 </body>
 </html>
