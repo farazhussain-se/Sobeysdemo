@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- FIX: Ensure referrer information is sent to YouTube -->
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>Staffbase Live Widget</title>
     <style>
         :root {
@@ -107,6 +109,7 @@
             left: 0;
             width: 100%;
             height: 100%;
+            /* Use a high-quality thumbnail as background */
             background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url('https://img.youtube.com/vi/Wpxv-8nG8ec/maxresdefault.jpg');
             background-size: cover;
             background-position: center;
@@ -171,7 +174,6 @@
         <!-- Header -->
         <div class="sb-live-header">
             <div class="sb-logo-area">
-                <!-- Simple Staffbase-like Icon -->
                 <svg class="sb-logo-icon" viewBox="0 0 24 24">
                     <path d="M12 2L2 22h20L12 2zm0 4l6 12H6l6-12z"/> 
                 </svg>
@@ -179,7 +181,7 @@
             </div>
             <div class="sb-live-status">
                 <span class="viewer-count">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>ircle cx="12" cy="12" r="3"/></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     1.2k
                 </span>
                 <span class="live-badge">LIVE</span>
@@ -188,10 +190,11 @@
 
         <!-- Video Area -->
         <div class="video-wrapper">
-            <!-- Iframe (Initially empty or src without autoplay to save data) -->
+            <!-- FIX: Added referrerpolicy to fix Error 153 -->
             <iframe id="yt-player" class="video-iframe" 
                 title="YouTube video player" 
                 frameborder="0" 
+                referrerpolicy="strict-origin-when-cross-origin"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                 allowfullscreen>
             </iframe>
@@ -212,13 +215,12 @@
         function startStream() {
             const overlay = document.getElementById('overlay');
             const player = document.getElementById('yt-player');
-            const videoId = "Wpxv-8nG8ec";
+            const videoId = "Wpxv-8nG8ec"; // The specific video ID you requested
             
-            // Add Fade out effect
+            // Hide overlay
             overlay.classList.add('hidden');
 
-            // Load the actual video with autoplay enabled
-            // We use 'rel=0' to not show related videos from other channels
+            // Load video with autoplay
             player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
         }
     </script>
